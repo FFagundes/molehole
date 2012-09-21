@@ -37,6 +37,17 @@ def place_holes(alive_holes):
         holes[hole]['is_alive'] = True
 
 
+def kreturn_press():
+    for event in pygame.event.get():
+        if event.type == pygame.KEYDOWN:
+            return True
+
+        if event.type == pygame.QUIT:
+            return True
+
+    return False
+
+
 def get_event(done):
     for event in pygame.event.get():  # User did something
         if event.type == pygame.QUIT:  # If user clicked close
@@ -87,20 +98,39 @@ def clear_click():
         hole['is_clicked'] = False
 
 
-def active_mole(hole):
-    if hole['mole_timer']:
+def active_hole(hole):
+    if hole['mole_timer'] and hole['is_alive']:
         hole['is_active'] = True
 
 
-def verify_holes(mole_counter):
-    # fail = False
+def randomize(pudim):
+    if randint(0, 100) < pudim[1]:
+        random = randint(1, 13)
+        while random not in alive_holes:
+            random = randint(1, 13)
+        active_hole(holes[random])
+
+    if pudim[0] < 300:
+        pudim[0] = pudim[0] + 1
+    else:
+        pudim[1] = pudim[1] + 1
+        pudim[0] = 0
+
+    print pudim
+    return pudim
+
+
+def verify_holes(lifes):
+    fail = False
     for hole in holes:
         if hole['mole_timer'] and hole['is_active'] == True:
             hole['mole_timer'] -= 1
 
         else:
-        # elif not hole['mole_timer']:
-        #     fail = True
+
+            if hole['is_active'] == True:
+                fail = True
+
             hole['is_active'] = False
             hole['inactive_time'] -= 1
 
@@ -108,11 +138,14 @@ def verify_holes(mole_counter):
                 hole['mole_timer'] = 40
                 hole['inactive_time'] = 20
 
-        # if fail:
-        #     mole_counter += 1
-        #     return mole_counter
-        # else:
-        #     return 0
+    if fail:
+        lifes -= 1
+
+    return lifes
+
+
+def verify_lifes():
+    pass
 
 
 # Define some colors
@@ -138,15 +171,19 @@ mole_punk = pygame.image.load('images/mole_punk.png')
 hammer = pygame.image.load('images/hammer.png')
 
 pygame.display.set_caption("Mole Hole")
+pygame.mouse.set_visible(False)
 
 points = 0
-mole_counter = 0
+lifes = 5
+speed_counter = 0
+dificulty = 5 
 
 points_font = pygame.font.SysFont('tahoma', 24, bold=True)
+lifes_font = pygame.font.SysFont('tahoma', 24, bold=True)
 
 
 #Eventos iniciais
-alive_holes = [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14]
+alive_holes = [1, 2, 3, 6, 7, 8, 11, 12, 13]
 place_holes(alive_holes)
 
 
@@ -165,8 +202,6 @@ clock = pygame.time.Clock()
 # -------- Main Program Loop -----------
 while done == False:
 
-    pygame.mouse.set_visible(False)
-
     tabuleiro.fill(alpha)
     clear_click()
     done = get_event(done)
@@ -177,24 +212,45 @@ while done == False:
     # Set the screen background
     screen.fill(black)
 
-    if randint(0, 10) == 1:
-        active_mole(holes[randint(0, 14)])
+    # speed_counter = randomize(speed_counter)
+    (speed_counter, dificulty) = randomize([speed_counter, dificulty])
 
-    mole_counter = verify_holes(mole_counter)
+    lifes = verify_holes(lifes)
+    if lifes == 0:
+        done = True
 
     # Limit to 20 frames per second
     clock.tick(20)
 
     draw_holes()
 
-    point_render = points_font.render(('Points  ' + str(points)), True, (255, 255, 255))
+    points_render = points_font.render(('Points  ' + str(points)), True, (255, 255, 255))
+    lifes_render = lifes_font.render(('Lifes  ' + str(lifes)), True, (255, 80, 50))
     screen.blit(background, (0, 0))
     screen.blit(tabuleiro, (80, 260))
-    screen.blit(point_render, (650, 20))
+    screen.blit(points_render, (600, 20))
+    screen.blit(lifes_render, (600, 60))
     screen.blit(martelo, (0, 0))
 
     # Go ahead and update the screen with what we've drawn.
     pygame.display.flip()
 # Be IDLE friendly. If you forget this line, the program will 'hang'
 # on exit.
+
+dead_title_font = pygame.font.SysFont('tahoma', 50, bold=True)
+dead_title_render = dead_title_font.render(('PONTOS'), True, (255, 255, 255))
+dead_title_align = (400 - (dead_title_render.get_width() / 2))
+
+dead_points_font = pygame.font.SysFont('tahoma', 140, bold=True)
+dead_points_render = dead_points_font.render(str(points), True, (255, 255, 255))
+dead_points_align = (400 - (dead_points_render.get_width() / 2))
+
+pygame.mouse.set_visible(True)
+
+while not kreturn_press():
+    screen.fill(black)
+    screen.blit(dead_title_render, (dead_title_align, 130))
+    screen.blit(dead_points_render, (dead_points_align, 230))
+    pygame.display.flip()
+
 pygame.quit()
