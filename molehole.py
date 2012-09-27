@@ -8,6 +8,11 @@
 import pygame
 from random import randint
 
+try:
+    import android
+except ImportError:
+    android = None
+
 
 def create_holes():
     holes = []
@@ -176,14 +181,16 @@ pygame.mouse.set_visible(False)
 points = 0
 lifes = 5
 speed_counter = 0
-dificulty = 5 
+dificulty = 12
 
-points_font = pygame.font.SysFont('tahoma', 24, bold=True)
-lifes_font = pygame.font.SysFont('tahoma', 24, bold=True)
+points_font = pygame.font.Font('FreeSans.ttf', 24)
+lifes_font = pygame.font.Font('FreeSans.ttf', 24)
+dead_title_font = pygame.font.Font('FreeSans.ttf', 50)
+dead_points_font = pygame.font.Font('FreeSans.ttf', 140)
 
 
 #Eventos iniciais
-alive_holes = [1, 2, 3, 6, 7, 8, 11, 12, 13]
+alive_holes = [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14]
 place_holes(alive_holes)
 
 
@@ -200,7 +207,14 @@ clock = pygame.time.Clock()
 
 
 # -------- Main Program Loop -----------
-while done == False:
+while not done:
+
+    # Limit to 20 frames per second
+    clock.tick(20)
+
+    if android:
+        android.init()
+        android.map_key(android.KEYCODE_BACK, pygame.K_ESCAPE)
 
     tabuleiro.fill(alpha)
     clear_click()
@@ -219,9 +233,6 @@ while done == False:
     if lifes == 0:
         done = True
 
-    # Limit to 20 frames per second
-    clock.tick(20)
-
     draw_holes()
 
     points_render = points_font.render(('Points  ' + str(points)), True, (255, 255, 255))
@@ -237,20 +248,21 @@ while done == False:
 # Be IDLE friendly. If you forget this line, the program will 'hang'
 # on exit.
 
-dead_title_font = pygame.font.SysFont('tahoma', 50, bold=True)
+
 dead_title_render = dead_title_font.render(('PONTOS'), True, (255, 255, 255))
 dead_title_align = (400 - (dead_title_render.get_width() / 2))
 
-dead_points_font = pygame.font.SysFont('tahoma', 140, bold=True)
 dead_points_render = dead_points_font.render(str(points), True, (255, 255, 255))
 dead_points_align = (400 - (dead_points_render.get_width() / 2))
 
 pygame.mouse.set_visible(True)
 
+screen.fill(black)
+screen.blit(dead_title_render, (dead_title_align, 130))
+screen.blit(dead_points_render, (dead_points_align, 230))
+pygame.display.flip()
+
 while not kreturn_press():
-    screen.fill(black)
-    screen.blit(dead_title_render, (dead_title_align, 130))
-    screen.blit(dead_points_render, (dead_points_align, 230))
-    pygame.display.flip()
+    clock.tick(20)
 
 pygame.quit()
