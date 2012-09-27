@@ -13,6 +13,11 @@ try:
 except ImportError:
     android = None
 
+try:
+    import pygame.mixer as mixer
+except ImportError:
+    import android_mixer as mixer
+
 
 def create_holes():
     holes = []
@@ -161,6 +166,10 @@ alpha = (0, 0, 0, 0)
 
 pygame.init()
 
+mixer.init()
+mixer.music.load('sounds/wooly_bully.mp3')
+mixer.music.play(-1)
+
 # Inicializa os valores
 holes = create_holes()
 
@@ -203,10 +212,6 @@ mole_time = 60
 done = False
 # Used to manage how fast the screen updates
 clock = pygame.time.Clock()
-
-pygame.mixer.init()
-pygame.mixer.music.load('sounds/wooly_bully.mp3')
-pygame.mixer.music.play(-1)
 
 
 # -------- Main Program Loop -----------
