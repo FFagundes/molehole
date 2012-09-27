@@ -121,7 +121,6 @@ def randomize(pudim):
         pudim[1] = pudim[1] + 1
         pudim[0] = 0
 
-    print pudim
     return pudim
 
 
@@ -204,6 +203,10 @@ mole_time = 60
 done = False
 # Used to manage how fast the screen updates
 clock = pygame.time.Clock()
+
+pygame.mixer.init()
+pygame.mixer.music.load('sounds/wooly_bully.mp3')
+pygame.mixer.music.play(-1)
 
 
 # -------- Main Program Loop -----------
