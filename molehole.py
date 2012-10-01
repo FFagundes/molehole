@@ -178,6 +178,7 @@ tabuleiro = pygame.Surface((640, 288), flags=pygame.SRCALPHA)
 martelo = pygame.Surface((800, 600), flags=pygame.SRCALPHA)
 
 background = pygame.image.load('images/background.png')
+flare = pygame.image.load('images/flare.png')
 hole_bg = pygame.image.load('images/hole_0.png')
 mole_active = pygame.image.load('images/mole.png')
 mole_punk = pygame.image.load('images/mole_punk.png')
@@ -189,16 +190,17 @@ pygame.mouse.set_visible(False)
 points = 0
 lifes = 5
 speed_counter = 0
-dificulty = 12
+dificulty = 8
 
 points_font = pygame.font.Font('FreeSans.ttf', 24)
 lifes_font = pygame.font.Font('FreeSans.ttf', 24)
+points_font.set_bold(True)
 dead_title_font = pygame.font.Font('FreeSans.ttf', 50)
 dead_points_font = pygame.font.Font('FreeSans.ttf', 140)
 
 
 #Eventos iniciais
-alive_holes = [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14]
+alive_holes = [1, 2, 3, 6, 7, 8, 11, 12, 13]
 place_holes(alive_holes)
 
 
@@ -243,13 +245,14 @@ while not done:
 
     draw_holes()
 
-    points_render = points_font.render(('Points  ' + str(points)), True, (255, 255, 255))
-    lifes_render = lifes_font.render(('Lifes  ' + str(lifes)), True, (255, 80, 50))
+    points_render = points_font.render(str(points), True, (178, 34, 34))
+    lifes_render = lifes_font.render(('Lifes  ' + str(lifes)), True, (0, 0, 0))
     screen.blit(background, (0, 0))
     screen.blit(tabuleiro, (80, 260))
-    screen.blit(points_render, (600, 20))
-    screen.blit(lifes_render, (600, 60))
+    screen.blit(points_render, (686, 132))
+    screen.blit(lifes_render, (600, 20))
     screen.blit(martelo, (0, 0))
+    screen.blit(flare, (0, 0))
 
     # Go ahead and update the screen with what we've drawn.
     pygame.display.flip()
