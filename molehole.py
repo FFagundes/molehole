@@ -65,6 +65,10 @@ def get_event(done):
 
         elif event.type == pygame.MOUSEBUTTONDOWN:
             x, y = pygame.mouse.get_pos()
+
+            martelo.fill(alpha)
+            martelo.blit(hammer2, (x - 30, y - 40))
+
             x = (x - 80) / 128
             y = (y - 260) / 96
 
@@ -74,7 +78,9 @@ def get_event(done):
                     hole['is_clicked'] = True
                     return 'point'
 
-        elif event.type == pygame.MOUSEMOTION:
+            return 'miss'
+
+        elif event.type == pygame.MOUSEMOTION or event.type == pygame.MOUSEBUTTONUP:
             x, y = pygame.mouse.get_pos()
             martelo.fill(alpha)
             martelo.blit(hammer, (x - 30, y - 40))
@@ -91,12 +97,14 @@ def draw_holes():
     for hole in holes:
         if hole['is_alive']:
             tabuleiro.blit(hole_bg, hole['position'])
-        if hole['is_active'] == True:
-            tabuleiro.blit(mole_active, hole['position'])
 
         if hole['is_clicked']:
-            tabuleiro.blit(mole_punk, hole['position'])
+            topeiras.blit(mole_punk, hole['position'])
+            topeiras.blit(stars, hole['position'])
             hole['is_active'] = False
+
+        elif hole['is_active'] == True:
+            topeiras.blit(mole_active, hole['position'])
 
 
 def draw_hole(hole, color):
@@ -149,6 +157,7 @@ def verify_holes(lifes):
 
     if fail:
         lifes -= 1
+        life_lost.play()
 
     return lifes
 
@@ -170,19 +179,30 @@ mixer.init()
 mixer.music.load('sounds/wooly_bully.mp3')
 mixer.music.play(-1)
 
+blow1 = mixer.Sound('sounds/blow1.ogg')
+blow2 = mixer.Sound('sounds/blow2.ogg')
+blow3 = mixer.Sound('sounds/blow3.ogg')
+blow4 = mixer.Sound('sounds/blow4.ogg')
+miss = mixer.Sound('sounds/cancel.ogg')
+life_lost = mixer.Sound('sounds/stare.ogg')
+
 # Inicializa os valores
 holes = create_holes()
 
 screen = pygame.display.set_mode((800, 600))
 tabuleiro = pygame.Surface((640, 288), flags=pygame.SRCALPHA)
+topeiras = pygame.Surface((640, 288), flags=pygame.SRCALPHA)
 martelo = pygame.Surface((800, 600), flags=pygame.SRCALPHA)
 
 background = pygame.image.load('images/background.png')
 flare = pygame.image.load('images/flare.png')
-hole_bg = pygame.image.load('images/hole_0.png')
-mole_active = pygame.image.load('images/mole.png')
-mole_punk = pygame.image.load('images/mole_punk.png')
+hole_bg = pygame.image.load('images/hole1.png')
+mole_active = pygame.image.load('images/mole1.png')
+mole_punk = pygame.image.load('images/mole3.png')
+stars = pygame.image.load('images/stars.png')
+stars.set_alpha(True)
 hammer = pygame.image.load('images/hammer.png')
+hammer2 = pygame.image.load('images/hammer2.png')
 
 pygame.display.set_caption("Mole Hole")
 pygame.mouse.set_visible(False)
@@ -227,10 +247,24 @@ while not done:
         android.map_key(android.KEYCODE_BACK, pygame.K_ESCAPE)
 
     tabuleiro.fill(alpha)
+    topeiras.fill(alpha)
     clear_click()
     done = get_event(done)
     if done == 'point':
+        blow_number = randint(0, 3)
+        if blow_number == 0:
+            blow1.play()
+        elif blow_number == 1:
+            blow2.play()
+        elif blow_number == 2:
+            blow3.play()
+        elif blow_number == 3:
+            blow4.play()
         points = add_point(points)
+        done = False
+
+    if done == 'miss':
+        miss.play()
         done = False
 
     # Set the screen background
@@ -240,7 +274,7 @@ while not done:
     (speed_counter, dificulty) = randomize([speed_counter, dificulty])
 
     lifes = verify_holes(lifes)
-    if lifes == 0:
+    if lifes == 90:
         done = True
 
     draw_holes()
@@ -249,6 +283,7 @@ while not done:
     lifes_render = lifes_font.render(('Lifes  ' + str(lifes)), True, (0, 0, 0))
     screen.blit(background, (0, 0))
     screen.blit(tabuleiro, (80, 260))
+    screen.blit(topeiras, (80, 260))
     screen.blit(points_render, (686, 132))
     screen.blit(lifes_render, (600, 20))
     screen.blit(martelo, (0, 0))
