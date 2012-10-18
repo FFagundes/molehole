@@ -52,7 +52,10 @@ def kreturn_press():
         if event.type == pygame.KEYDOWN:
             return True
 
-        if event.type == pygame.QUIT:
+        elif event.type == pygame.QUIT:
+            return True
+
+        elif event.type == pygame.MOUSEBUTTONDOWN:
             return True
 
     return False
@@ -177,7 +180,11 @@ pygame.init()
 
 mixer.init()
 mixer.music.load('sounds/wooly_bully.mp3')
-mixer.music.play(-1)
+if android:
+    mixer.music.play()
+    mixer.periodic()
+else:
+    mixer.music.play(-1)
 
 blow1 = mixer.Sound('sounds/blow1.ogg')
 blow2 = mixer.Sound('sounds/blow2.ogg')
@@ -212,6 +219,7 @@ lifes = 5
 speed_counter = 0
 dificulty = 8
 
+title_font = pygame.font.Font('FreeSans.ttf', 50)
 points_font = pygame.font.Font('FreeSans.ttf', 24)
 lifes_font = pygame.font.Font('FreeSans.ttf', 24)
 points_font.set_bold(True)
@@ -237,6 +245,18 @@ clock = pygame.time.Clock()
 
 
 # -------- Main Program Loop -----------
+
+title_render = title_font.render(('Iniciar'), True, (255, 150, 0))
+title_align = (400 - (title_render.get_width() / 2))
+
+screen.fill(black)
+screen.blit(title_render, (title_align, 450))
+pygame.display.flip()
+
+while not kreturn_press():
+    clock.tick(20)
+
+
 while not done:
 
     # Limit to 20 frames per second
@@ -274,7 +294,7 @@ while not done:
     (speed_counter, dificulty) = randomize([speed_counter, dificulty])
 
     lifes = verify_holes(lifes)
-    if lifes == 90:
+    if lifes == 0:
         done = True
 
     draw_holes()
