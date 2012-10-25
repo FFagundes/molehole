@@ -178,6 +178,10 @@ alpha = (0, 0, 0, 0)
 
 pygame.init()
 
+if android:
+    android.init()
+    android.map_key(android.KEYCODE_BACK, pygame.K_ESCAPE)
+
 mixer.init()
 mixer.music.load('sounds/wooly_bully.mp3')
 if android:
@@ -261,10 +265,6 @@ while not done:
 
     # Limit to 20 frames per second
     clock.tick(20)
-
-    if android:
-        android.init()
-        android.map_key(android.KEYCODE_BACK, pygame.K_ESCAPE)
 
     tabuleiro.fill(alpha)
     topeiras.fill(alpha)
