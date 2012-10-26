@@ -205,6 +205,7 @@ tabuleiro = pygame.Surface((640, 288), flags=pygame.SRCALPHA)
 topeiras = pygame.Surface((640, 288), flags=pygame.SRCALPHA)
 martelo = pygame.Surface((800, 600), flags=pygame.SRCALPHA)
 
+title_screen = pygame.image.load('images/title_screen.png')
 background = pygame.image.load('images/background.png')
 flare = pygame.image.load('images/flare.png')
 hole_bg = pygame.image.load('images/hole1.png')
@@ -250,15 +251,12 @@ clock = pygame.time.Clock()
 
 # -------- Main Program Loop -----------
 
-title_render = title_font.render(('Iniciar'), True, (255, 150, 0))
-title_align = (400 - (title_render.get_width() / 2))
-
 screen.fill(black)
-screen.blit(title_render, (title_align, 450))
-pygame.display.flip()
+screen.blit(title_screen, (0, 0))
 
 while not kreturn_press():
     clock.tick(20)
+    pygame.display.flip()
 
 
 while not done:
