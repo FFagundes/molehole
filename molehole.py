@@ -1,9 +1,5 @@
 # Encoding: UTF-8
 
-# Sample Python/Pygame Programs
-# Simpson College Computer Science
-# http://cs.simpson.edu
-
 
 import pygame
 from random import randint
@@ -53,7 +49,7 @@ def kreturn_press():
             return True
 
         elif event.type == pygame.QUIT:
-            return True
+            pygame.quit()
 
         elif event.type == pygame.MOUSEBUTTONDOWN:
             return True
@@ -62,9 +58,9 @@ def kreturn_press():
 
 
 def get_event(done):
-    for event in pygame.event.get():  # User did something
-        if event.type == pygame.QUIT:  # If user clicked close
-            done = True  # Flag that we are done so we exit this loop
+    for event in pygame.event.get():
+        if event.type == pygame.QUIT:
+            pygame.quit()
 
         elif event.type == pygame.MOUSEBUTTONDOWN:
             x, y = pygame.mouse.get_pos()
@@ -183,12 +179,7 @@ if android:
     android.map_key(android.KEYCODE_BACK, pygame.K_ESCAPE)
 
 mixer.init()
-mixer.music.load('sounds/wooly_bully.mp3')
-if android:
-    mixer.music.play()
-    mixer.periodic()
-else:
-    mixer.music.play(-1)
+mixer.music.load('sounds/title_music.mp3')
 
 blow1 = mixer.Sound('sounds/blow1.ogg')
 blow2 = mixer.Sound('sounds/blow2.ogg')
@@ -205,7 +196,10 @@ tabuleiro = pygame.Surface((640, 288), flags=pygame.SRCALPHA)
 topeiras = pygame.Surface((640, 288), flags=pygame.SRCALPHA)
 martelo = pygame.Surface((800, 600), flags=pygame.SRCALPHA)
 
+fatec_screen = pygame.image.load('images/fatec_logo.png')
+bug_screen = pygame.image.load('images/bug_logo.png')
 title_screen = pygame.image.load('images/title_screen.png')
+end_game = pygame.image.load('images/end_game.png')
 background = pygame.image.load('images/background.png')
 flare = pygame.image.load('images/flare.png')
 hole_bg = pygame.image.load('images/hole1.png')
@@ -228,8 +222,7 @@ title_font = pygame.font.Font('FreeSans.ttf', 50)
 points_font = pygame.font.Font('FreeSans.ttf', 24)
 lifes_font = pygame.font.Font('FreeSans.ttf', 24)
 points_font.set_bold(True)
-dead_title_font = pygame.font.Font('FreeSans.ttf', 50)
-dead_points_font = pygame.font.Font('FreeSans.ttf', 140)
+dead_points_font = pygame.font.Font('FreeSans.ttf', 80)
 
 
 #Eventos iniciais
@@ -245,23 +238,40 @@ mole_time = 60
 
 #Loop until the user clicks the close button.
 done = False
-# Used to manage how fast the screen updates
+
 clock = pygame.time.Clock()
 
 
 # -------- Main Program Loop -----------
 
-screen.fill(black)
+mixer.music.play()
+
+timer = pygame.time.get_ticks()
+screen.blit(fatec_screen, (0, 0))
+pygame.display.flip()
+pygame.time.delay(3000)
+
+screen.blit(bug_screen, (0, 0))
+pygame.display.flip()
+pygame.time.delay(3000)
+
 screen.blit(title_screen, (0, 0))
 
 while not kreturn_press():
     clock.tick(20)
     pygame.display.flip()
 
+mixer.music.stop()
+mixer.music.load('sounds/wooly_bully.mp3')
+
+if android:
+    mixer.music.play()
+    mixer.periodic()
+else:
+    mixer.music.play(-1)
 
 while not done:
 
-    # Limit to 20 frames per second
     clock.tick(20)
 
     tabuleiro.fill(alpha)
@@ -285,10 +295,8 @@ while not done:
         miss.play()
         done = False
 
-    # Set the screen background
     screen.fill(black)
 
-    # speed_counter = randomize(speed_counter)
     (speed_counter, dificulty) = randomize([speed_counter, dificulty])
 
     lifes = verify_holes(lifes)
@@ -307,26 +315,29 @@ while not done:
     screen.blit(martelo, (0, 0))
     screen.blit(flare, (0, 0))
 
-    # Go ahead and update the screen with what we've drawn.
     pygame.display.flip()
-# Be IDLE friendly. If you forget this line, the program will 'hang'
-# on exit.
 
+    if done:
+        mixer.music.stop()
+        dead_points_render = dead_points_font.render(str(points), True, (255, 255, 255))
+        dead_points_align = (730 - (dead_points_render.get_width()))
 
-dead_title_render = dead_title_font.render(('PONTOS'), True, (255, 255, 255))
-dead_title_align = (400 - (dead_title_render.get_width() / 2))
+        pygame.mouse.set_visible(True)
 
-dead_points_render = dead_points_font.render(str(points), True, (255, 255, 255))
-dead_points_align = (400 - (dead_points_render.get_width() / 2))
+        screen.blit(end_game, (0, 0))
+        screen.blit(dead_points_render, (dead_points_align, 306))
+        pygame.display.flip()
 
-pygame.mouse.set_visible(True)
+        mixer.music.load('sounds/gag.mp3')
+        mixer.music.play()
+        pygame.time.delay(2000)
 
-screen.fill(black)
-screen.blit(dead_title_render, (dead_title_align, 130))
-screen.blit(dead_points_render, (dead_points_align, 230))
-pygame.display.flip()
+        while not kreturn_press():
+            clock.tick(20)
 
-while not kreturn_press():
-    clock.tick(20)
+        done = False
+        lifes = 5
+        points = 0
+        create_holes()
 
 pygame.quit()
