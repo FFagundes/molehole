@@ -6,6 +6,8 @@ import getopt
 
 import pygame
 
+from random import randint
+
 images_dir = os.path.join("images")
 
 
@@ -41,6 +43,7 @@ class GameObject(pygame.sprite.Sprite):
             self.image = os.path.join(images_dir, self.image)
             self.image = pygame.image.load(self.image)
 
+        self.position = position
         self.rect = self.image.get_rect()
         screen = pygame.display.get_surface()
         self.area = screen.get_rect()
@@ -56,26 +59,43 @@ class GameObject(pygame.sprite.Sprite):
 
 class Hole(GameObject):
 
-    active = True
+    coordenates = (0, 0)
+    active = False
+
+    def __init__(self, position, image, coordenates):
+        GameObject.__init__(self, image, position)
+        self.coordenates = coordenates
+
+
+class Mole(GameObject):
+
+    alive = True
+    alive_timer = 60
+    killed = False
 
     def __init__(self, position, image):
         GameObject.__init__(self, image, position)
 
-    def update(self, dt):
-        if not self.active:
-            self.image = None
-
 
 class Game:
+
+    #constantes
     screen = None
     screen_size = None
     run = True
     actors_dict = None
     background = None
+
+    hole_width = 128
+    hole_height = 96
+
+    top_margin = 80
+    left_margin = 260
+
     level_map = [
-                    [0, 0, 1, 1, 0],
                     [1, 1, 1, 1, 1],
-                    [0, 1, 0, 1, 0],
+                    [1, 0, 0, 0, 1],
+                    [1, 1, 1, 1, 1],
                 ]
 
     def __init__(self, size):
@@ -102,24 +122,43 @@ class Game:
             actor.draw(self.screen)
 
     def manage(self):
-        pass
+        self.create_moles()
 
     def generate_holes(self):
         for (x, lin) in enumerate(self.level_map):
             for (y, col) in enumerate(lin):
                 if col:
-                    hole = Hole(
-                        ((y * 128) + 80, (x * 96) + 260),
-                        "hole1.png")
+
+                    ver_align = (y * self.hole_width) + self.top_margin
+                    hor_align = (x * self.hole_height) + self.left_margin
+
+                    hole = Hole((ver_align, hor_align), "hole1.png", (x, y))
+
                     self.actors_dict['holes'].add(hole)
+                    self.unactive_holes.append(hole)
+
+    def create_moles(self):
+
+        if(randint(0, self.difficulty) == 0):
+
+            if self.unactive_holes:
+                hole_index = randint(0, len(self.unactive_holes) - 1)
+                hole = self.unactive_holes[hole_index]
+
+                mole = Mole(hole.position, "mole1.png")
+                self.actors_dict['moles'].add(mole)
+                self.unactive_holes.remove(hole)
 
     def loop(self):
         self.background = Background("background.png")
         clock = pygame.time.Clock()
         dt = 50
         self.interval = 1
+        self.difficulty = 5
+        self.unactive_holes = []
         self.actors_dict = {
             "holes": pygame.sprite.RenderPlain(),
+            "moles": pygame.sprite.RenderPlain(),
             }
 
         self.generate_holes()
@@ -134,7 +173,7 @@ class Game:
             self.actors_draw()
             pygame.display.flip()
 
-            print "FPS: %0.2f" % clock.get_fps()
+            # print "FPS: %0.2f" % clock.get_fps()
 
 
 def main():
