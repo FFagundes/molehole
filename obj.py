@@ -61,20 +61,40 @@ class Hole(GameObject):
 
     coordenates = (0, 0)
     active = False
+    mole = None
+    refresh_counter = 24
 
     def __init__(self, position, image, coordenates):
         GameObject.__init__(self, image, position)
         self.coordenates = coordenates
 
+    def update(self, dt):
+        if self.active:
+            self.refresh_counter -= 1
+
 
 class Mole(GameObject):
 
+    coordenates = (0, 0)
     alive = True
     alive_timer = 60
     killed = False
 
-    def __init__(self, position, image):
+    def __init__(self, position, image, coordenates):
         GameObject.__init__(self, image, position)
+        self.coordenates = coordenates
+
+    def update(self, dt):
+        self.alive_timer -= 1
+
+        if not self.alive_timer:
+            self.alive = False
+
+
+class Player:
+
+    lifes = 5
+    score = 0
 
 
 class Game:
@@ -92,9 +112,11 @@ class Game:
     top_margin = 80
     left_margin = 260
 
+    player = Player()
+
     level_map = [
                     [1, 1, 1, 1, 1],
-                    [1, 0, 0, 0, 1],
+                    [1, 0, 1, 0, 1],
                     [1, 1, 1, 1, 1],
                 ]
 
@@ -102,13 +124,26 @@ class Game:
         pygame.init()
         self.screen = pygame.display.set_mode(size)
         self.screen_size = self.screen.get_size()
-        pygame.mouse.set_visible(0)
+        # pygame.mouse.set_visible(0)
         pygame.display.set_caption('Mole Hole')
+
+    def click_event(self):
+        x, y = pygame.mouse.get_pos()
+
+        x = (x - self.top_margin) / self.hole_width
+        y = (y - self.left_margin) / self.hole_height
+
+        for mole in self.actors_dict['moles']:
+            if mole.coordenates == (y, x):
+                self.kill_mole(mole, True)
 
     def handle_events(self):
         for event in pygame.event.get():
             if event.type == pygame.QUIT:
                 self.run = False
+
+            elif event.type == pygame.MOUSEBUTTONDOWN:
+                self.click_event()
 
     def actors_update(self, dt):
         self.background.update(dt)
@@ -121,8 +156,37 @@ class Game:
         for actor in self.actors_dict.values():
             actor.draw(self.screen)
 
+    def refresh_holes(self):
+        for hole in self.active_holes:
+            if not hole.refresh_counter:
+                self.unactive_holes.append(hole)
+                self.active_holes.remove(hole)
+                hole.active = False
+                hole.refresh_counter = 24
+
+    def kill_mole(self, mole, killed=False):
+        if killed:
+            self.player.score += 1
+        else:
+            self.player.lifes -= 1
+
+        print self.player.lifes
+        print self.player.score
+
+        self.active_holes.append(mole.hole)
+        mole.hole.active = True
+        mole.kill()
+
+    def refresh_moles(self):
+        for mole in self.actors_dict['moles']:
+            if not mole.alive:
+                self.kill_mole(mole)
+
     def manage(self):
         self.create_moles()
+        self.refresh_moles()
+        self.refresh_holes()
+        self.refresh_player()
 
     def generate_holes(self):
         for (x, lin) in enumerate(self.level_map):
@@ -139,23 +203,28 @@ class Game:
 
     def create_moles(self):
 
-        if(randint(0, self.difficulty) == 0):
-
+        if not randint(0, self.difficulty):
             if self.unactive_holes:
                 hole_index = randint(0, len(self.unactive_holes) - 1)
                 hole = self.unactive_holes[hole_index]
 
-                mole = Mole(hole.position, "mole1.png")
+                mole = Mole(hole.position, "mole1.png", hole.coordenates)
                 self.actors_dict['moles'].add(mole)
+                mole.hole = hole
                 self.unactive_holes.remove(hole)
+
+    def refresh_player(self):
+        if self.player.lifes <= 0:
+            print 'FODEU!!!'
 
     def loop(self):
         self.background = Background("background.png")
         clock = pygame.time.Clock()
         dt = 50
         self.interval = 1
-        self.difficulty = 5
+        self.difficulty = 100 / 5
         self.unactive_holes = []
+        self.active_holes = []
         self.actors_dict = {
             "holes": pygame.sprite.RenderPlain(),
             "moles": pygame.sprite.RenderPlain(),
@@ -164,7 +233,7 @@ class Game:
         self.generate_holes()
 
         while self.run:
-            clock.tick(1000 / dt)
+            clock.tick(1200 / 50)
             self.interval += 1
 
             self.handle_events()
