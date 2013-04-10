@@ -57,6 +57,22 @@ class GameObject(pygame.sprite.Sprite):
         self.rect.topleft = (pos[0], pos[1])
 
 
+class Sign(GameObject):
+
+    def __init__(self, position, image, score):
+        GameObject.__init__(self, image, position)
+        self.font = pygame.font.Font('FreeSans.ttf', 20)
+        self.label_position = (position[0] + 15, position[1] + 30)
+        self.score = score
+
+    def draw(self, screen):
+        screen.blit(self.image, self.position)
+        screen.blit(self.label, self.label_position)
+
+    def update(self, dt):
+        self.label = self.font.render('Points: %s' % self.score, False, (100, 50, 0))
+
+
 class Hole(GameObject):
 
     coordenates = (0, 0)
@@ -116,7 +132,7 @@ class Game:
 
     level_map = [
                     [1, 1, 1, 1, 1],
-                    [1, 0, 1, 0, 1],
+                    [1, 1, 1, 1, 1],
                     [1, 1, 1, 1, 1],
                 ]
 
@@ -126,6 +142,7 @@ class Game:
         self.screen_size = self.screen.get_size()
         # pygame.mouse.set_visible(0)
         pygame.display.set_caption('Mole Hole')
+        self.score_sign = Sign((200, 100), 'sign.png', self.player.score)
 
     def click_event(self):
         x, y = pygame.mouse.get_pos()
@@ -151,10 +168,14 @@ class Game:
         for actor in self.actors_dict.values():
             actor.update(dt)
 
+        self.score_sign.update(dt)
+
     def actors_draw(self):
         self.background.draw(self.screen)
         for actor in self.actors_dict.values():
             actor.draw(self.screen)
+
+        self.score_sign.draw(self.screen)
 
     def refresh_holes(self):
         for hole in self.active_holes:
@@ -236,6 +257,7 @@ class Game:
             clock.tick(1200 / 50)
             self.interval += 1
 
+            self.score_sign.score = self.player.score
             self.handle_events()
             self.actors_update(dt)
             self.manage()
