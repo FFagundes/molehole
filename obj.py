@@ -143,7 +143,6 @@ class Game:
         # pygame.mouse.set_visible(0)
         pygame.display.set_caption('Mole Hole')
         self.score_sign = Sign((200, 100), 'sign.png', self.player.score)
-        self.actors_dict['moles'].add(self.score_sign)
 
     def click_event(self):
         x, y = pygame.mouse.get_pos()
@@ -169,10 +168,14 @@ class Game:
         for actor in self.actors_dict.values():
             actor.update(dt)
 
+        self.score_sign.update(dt)
+
     def actors_draw(self):
         self.background.draw(self.screen)
         for actor in self.actors_dict.values():
             actor.draw(self.screen)
+
+        self.score_sign.draw(self.screen)
 
     def refresh_holes(self):
         for hole in self.active_holes:
