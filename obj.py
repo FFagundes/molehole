@@ -8,6 +8,11 @@ import pygame
 
 from random import randint
 
+try:
+    import android
+except ImportError:
+    android = None
+
 images_dir = os.path.join("images")
 
 
@@ -138,6 +143,9 @@ class Game:
 
     def __init__(self, size):
         pygame.init()
+        if android:
+            android.init()
+            android.map_key(android.KEYCODE_BACK, pygame.K_ESCAPE)
         self.screen = pygame.display.set_mode(size)
         self.screen_size = self.screen.get_size()
         # pygame.mouse.set_visible(0)
