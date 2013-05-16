@@ -64,7 +64,7 @@ class GameObject(pygame.sprite.Sprite):
 
 class Sign(GameObject):
 
-    def __init__(self, position, image, score):
+    def __init__(self, score, position=(30, 100), image='sign.png'):
         GameObject.__init__(self, image, position)
         self.font = pygame.font.Font('FreeSans.ttf', 20)
         self.label_position = (position[0] + 15, position[1] + 30)
@@ -76,6 +76,14 @@ class Sign(GameObject):
 
     def update(self, dt):
         self.label = self.font.render('Points: %s' % self.score, False, (100, 50, 0))
+
+
+class LivesSign(Sign):
+    def __init__(self, score, position=(300, 100), image='sign.png'):
+        Sign.__init__(self, score, position, image)
+
+    def update(self, dt):
+        self.label = self.font.render('Lifes: %s' % self.score, False, (100, 50, 0))
 
 
 class Hole(GameObject):
@@ -114,7 +122,7 @@ class Mole(GameObject):
 
 class Player:
 
-    lifes = 5
+    lives = 5
     score = 0
 
 
@@ -133,8 +141,6 @@ class Game:
     top_margin = 80
     left_margin = 260
 
-    player = Player()
-
     level_map = [
                     [1, 1, 1, 1, 1],
                     [1, 1, 1, 1, 1],
@@ -142,15 +148,19 @@ class Game:
                 ]
 
     def __init__(self, size):
+
         pygame.init()
+
         if android:
             android.init()
             android.map_key(android.KEYCODE_BACK, pygame.K_ESCAPE)
+
+        self.player = Player()
         self.screen = pygame.display.set_mode(size)
-        self.screen_size = self.screen.get_size()
         # pygame.mouse.set_visible(0)
         pygame.display.set_caption('Mole Hole')
-        self.score_sign = Sign((200, 100), 'sign.png', self.player.score)
+        self.score_sign = Sign(self.player.score)
+        self.lives_sign = LivesSign(self.player.lives)
 
     def click_event(self):
         x, y = pygame.mouse.get_pos()
@@ -177,6 +187,7 @@ class Game:
             actor.update(dt)
 
         self.score_sign.update(dt)
+        self.lives_sign.update(dt)
 
     def actors_draw(self):
         self.background.draw(self.screen)
@@ -184,6 +195,7 @@ class Game:
             actor.draw(self.screen)
 
         self.score_sign.draw(self.screen)
+        self.lives_sign.draw(self.screen)
 
     def refresh_holes(self):
         for hole in self.active_holes:
@@ -197,9 +209,9 @@ class Game:
         if killed:
             self.player.score += 1
         else:
-            self.player.lifes -= 1
+            self.player.lives -= 1
 
-        print self.player.lifes
+        print self.player.lives
         print self.player.score
 
         self.active_holes.append(mole.hole)
@@ -216,6 +228,8 @@ class Game:
         self.refresh_moles()
         self.refresh_holes()
         self.refresh_player()
+        self.score_sign.score = self.player.score
+        self.lives_sign.score = self.player.lives
 
     def generate_holes(self):
         for (x, lin) in enumerate(self.level_map):
@@ -243,7 +257,7 @@ class Game:
                 self.unactive_holes.remove(hole)
 
     def refresh_player(self):
-        if self.player.lifes <= 0:
+        if self.player.lives <= 0:
             print 'FODEU!!!'
 
     def loop(self):
@@ -264,8 +278,6 @@ class Game:
         while self.run:
             clock.tick(1200 / 50)
             self.interval += 1
-
-            self.score_sign.score = self.player.score
             self.handle_events()
             self.actors_update(dt)
             self.manage()
