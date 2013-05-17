@@ -126,41 +126,55 @@ class Player:
     score = 0
 
 
-class Game:
-
-    #constantes
-    screen = None
-    screen_size = None
-    run = True
-    actors_dict = None
+class Scene:
     background = None
+    run = True
+    next_scene = None
 
+    def __init__(self, player, screen):
+        self.player = player
+        self.screen = screen
+
+
+class EndScene(Scene):
+
+    timer = 120
+
+    def __init__(self, player, screen):
+        Scene.__init__(self, player, screen)
+        self.background = Background("end_game.png")
+
+    def play(self, clock):
+        font = pygame.font.Font('FreeSans.ttf', 60)
+        score = font.render(str(self.player.score), True, (255, 255, 255))
+        align = (730 - (score.get_width()))
+
+        self.background.draw(self.screen)
+        self.screen.blit(score, (align, 306))
+        pygame.display.flip()
+
+        pygame.time.delay(5000)
+
+        return False
+
+
+class SurvivalScene(Scene):
     hole_width = 128
     hole_height = 96
-
     top_margin = 80
     left_margin = 260
-
     level_map = [
                     [1, 1, 1, 1, 1],
                     [1, 1, 1, 1, 1],
                     [1, 1, 1, 1, 1],
                 ]
 
-    def __init__(self, size):
-
-        pygame.init()
-
-        if android:
-            android.init()
-            android.map_key(android.KEYCODE_BACK, pygame.K_ESCAPE)
-
-        self.player = Player()
-        self.screen = pygame.display.set_mode(size)
-        # pygame.mouse.set_visible(0)
-        pygame.display.set_caption('Mole Hole')
+    def __init__(self, dt, player, screen):
+        Scene.__init__(self, player, screen)
+        self.background = Background("background.png")
         self.score_sign = Sign(self.player.score)
         self.lives_sign = LivesSign(self.player.lives)
+        self.dt = dt
 
     def click_event(self):
         x, y = pygame.mouse.get_pos()
@@ -180,14 +194,14 @@ class Game:
             elif event.type == pygame.MOUSEBUTTONDOWN:
                 self.click_event()
 
-    def actors_update(self, dt):
-        self.background.update(dt)
+    def actors_update(self):
+        self.background.update(self.dt)
 
         for actor in self.actors_dict.values():
-            actor.update(dt)
+            actor.update(self.dt)
 
-        self.score_sign.update(dt)
-        self.lives_sign.update(dt)
+        self.score_sign.update(self.dt)
+        self.lives_sign.update(self.dt)
 
     def actors_draw(self):
         self.background.draw(self.screen)
@@ -258,13 +272,10 @@ class Game:
 
     def refresh_player(self):
         if self.player.lives <= 0:
-            print 'FODEU!!!'
+            self.next_scene = EndScene(self.player, self.screen)
+            self.run = False
 
-    def loop(self):
-        self.background = Background("background.png")
-        clock = pygame.time.Clock()
-        dt = 50
-        self.interval = 1
+    def play(self, clock):
         self.difficulty = 100 / 5
         self.unactive_holes = []
         self.active_holes = []
@@ -277,14 +288,44 @@ class Game:
 
         while self.run:
             clock.tick(1200 / 50)
-            self.interval += 1
             self.handle_events()
-            self.actors_update(dt)
+            self.actors_update()
             self.manage()
             self.actors_draw()
             pygame.display.flip()
 
-            # print "FPS: %0.2f" % clock.get_fps()
+        return self.next_scene
+
+
+class Game:
+
+    #constantes
+    screen = None
+    screen_size = None
+    run = True
+
+    def __init__(self, size):
+
+        pygame.init()
+
+        if android:
+            android.init()
+            android.map_key(android.KEYCODE_BACK, pygame.K_ESCAPE)
+
+        self.player = Player()
+        self.screen = pygame.display.set_mode(size)
+        pygame.display.set_caption('Mole Hole')
+        # pygame.mouse.set_visible(0)
+
+    def loop(self):
+        clock = pygame.time.Clock()
+        dt = 50
+        scene = SurvivalScene(dt, self.player, self.screen)
+
+        while scene:
+            scene = scene.play(clock)
+
+        pygame.quit()
 
 
 def main():
