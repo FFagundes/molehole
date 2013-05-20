@@ -171,7 +171,7 @@ class SurvivalScene(Scene):
 
     def __init__(self, dt, player, screen):
         Scene.__init__(self, player, screen)
-        self.background = Background("background.png")
+        self.background = Background("background6.png")
         self.score_sign = Sign(self.player.score)
         self.lives_sign = LivesSign(self.player.lives)
         self.dt = dt
@@ -224,9 +224,6 @@ class SurvivalScene(Scene):
             self.player.score += 1
         else:
             self.player.lives -= 1
-
-        print self.player.lives
-        print self.player.score
 
         self.active_holes.append(mole.hole)
         mole.hole.active = True
