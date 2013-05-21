@@ -64,10 +64,10 @@ class GameObject(pygame.sprite.Sprite):
 
 class Sign(GameObject):
 
-    def __init__(self, score, position=(30, 100), image='sign.png'):
+    def __init__(self, score, position=(175, 33), image='sign.png'):
         GameObject.__init__(self, image, position)
-        self.font = pygame.font.Font('FreeSans.ttf', 20)
-        self.label_position = (position[0] + 15, position[1] + 30)
+        self.font = pygame.font.Font('FreeSans.ttf', 16)
+        self.label_position = (position[0] + 10, position[1] + 13)
         self.score = score
 
     def draw(self, screen):
@@ -75,11 +75,11 @@ class Sign(GameObject):
         screen.blit(self.label, self.label_position)
 
     def update(self, dt):
-        self.label = self.font.render('Points: %s' % self.score, False, (100, 50, 0))
+        self.label = self.font.render('Score: %s' % self.score, False, (100, 50, 0))
 
 
 class LivesSign(Sign):
-    def __init__(self, score, position=(300, 100), image='sign.png'):
+    def __init__(self, score, position=(360, 20), image='sign.png'):
         Sign.__init__(self, score, position, image)
 
     def update(self, dt):
@@ -130,27 +130,27 @@ class Scene:
     background = None
     run = True
     next_scene = None
+    context = None
 
-    def __init__(self, player, screen):
-        self.player = player
-        self.screen = screen
+    def __init__(self, context):
+        self.context = context
 
 
 class EndScene(Scene):
 
     timer = 120
 
-    def __init__(self, player, screen):
-        Scene.__init__(self, player, screen)
+    def __init__(self, context):
+        Scene.__init__(self, context)
         self.background = Background("end_game.png")
 
     def play(self, clock):
-        font = pygame.font.Font('FreeSans.ttf', 60)
-        score = font.render(str(self.player.score), True, (255, 255, 255))
-        align = (730 - (score.get_width()))
+        font = pygame.font.Font('FreeSans.ttf', 32)
+        score = font.render(str(self.context['player'].score), True, (255, 255, 255))
+        align = (440 - (score.get_width()))
 
-        self.background.draw(self.screen)
-        self.screen.blit(score, (align, 306))
+        self.background.draw(self.context['screen'])
+        self.context['screen'].blit(score, (align, 170))
         pygame.display.flip()
 
         pygame.time.delay(5000)
@@ -158,29 +158,49 @@ class EndScene(Scene):
         return False
 
 
+class IntroScene(Scene):
+
+    timer = 120
+
+    def __init__(self, context):
+        Scene.__init__(self, context)
+        self.background = Background("fatec_logo.png")
+
+    def play(self, clock):
+        self.background.draw(self.context['screen'])
+        pygame.display.flip()
+        pygame.time.delay(5000)
+
+        self.background = Background("bug_logo.png")
+        self.background.draw(self.context['screen'])
+        pygame.display.flip()
+        pygame.time.delay(5000)
+
+        return SurvivalScene(self.context)
+
+
 class SurvivalScene(Scene):
-    hole_width = 128
-    hole_height = 96
-    top_margin = 80
-    left_margin = 260
+    hole_width = 81
+    hole_height = 73
+    left_margin = 24
+    top_margin = 96
     level_map = [
                     [1, 1, 1, 1, 1],
                     [1, 1, 1, 1, 1],
                     [1, 1, 1, 1, 1],
                 ]
 
-    def __init__(self, dt, player, screen):
-        Scene.__init__(self, player, screen)
-        self.background = Background("background6.png")
-        self.score_sign = Sign(self.player.score)
-        self.lives_sign = LivesSign(self.player.lives)
-        self.dt = dt
+    def __init__(self, context):
+        Scene.__init__(self, context)
+        self.background = Background("background.png")
+        self.score_sign = Sign(self.context['player'].score)
+        self.lives_sign = LivesSign(self.context['player'].lives)
 
     def click_event(self):
         x, y = pygame.mouse.get_pos()
 
-        x = (x - self.top_margin) / self.hole_width
-        y = (y - self.left_margin) / self.hole_height
+        y = (y - self.top_margin) / self.hole_height
+        x = (x - self.left_margin) / self.hole_width
 
         for mole in self.actors_dict['moles']:
             if mole.coordenates == (y, x):
@@ -195,21 +215,21 @@ class SurvivalScene(Scene):
                 self.click_event()
 
     def actors_update(self):
-        self.background.update(self.dt)
+        self.background.update(self.context['dt'])
 
         for actor in self.actors_dict.values():
-            actor.update(self.dt)
+            actor.update(self.context['dt'])
 
-        self.score_sign.update(self.dt)
-        self.lives_sign.update(self.dt)
+        self.score_sign.update(self.context['dt'])
+        self.lives_sign.update(self.context['dt'])
 
     def actors_draw(self):
-        self.background.draw(self.screen)
+        self.background.draw(self.context['screen'])
         for actor in self.actors_dict.values():
-            actor.draw(self.screen)
+            actor.draw(self.context['screen'])
 
-        self.score_sign.draw(self.screen)
-        self.lives_sign.draw(self.screen)
+        self.score_sign.draw(self.context['screen'])
+        self.lives_sign.draw(self.context['screen'])
 
     def refresh_holes(self):
         for hole in self.active_holes:
@@ -221,9 +241,9 @@ class SurvivalScene(Scene):
 
     def kill_mole(self, mole, killed=False):
         if killed:
-            self.player.score += 1
+            self.context['player'].score += 1
         else:
-            self.player.lives -= 1
+            self.context['player'].lives -= 1
 
         self.active_holes.append(mole.hole)
         mole.hole.active = True
@@ -239,18 +259,18 @@ class SurvivalScene(Scene):
         self.refresh_moles()
         self.refresh_holes()
         self.refresh_player()
-        self.score_sign.score = self.player.score
-        self.lives_sign.score = self.player.lives
+        self.score_sign.score = self.context['player'].score
+        self.lives_sign.score = self.context['player'].lives
 
     def generate_holes(self):
         for (x, lin) in enumerate(self.level_map):
             for (y, col) in enumerate(lin):
                 if col:
 
-                    ver_align = (y * self.hole_width) + self.top_margin
-                    hor_align = (x * self.hole_height) + self.left_margin
+                    hor_align = (y * self.hole_width) + self.left_margin + (y * 6)
+                    ver_align = (x * self.hole_height) + self.top_margin
 
-                    hole = Hole((ver_align, hor_align), "hole1.png", (x, y))
+                    hole = Hole((hor_align, ver_align), "hole.png", (x, y))
 
                     self.actors_dict['holes'].add(hole)
                     self.unactive_holes.append(hole)
@@ -262,14 +282,14 @@ class SurvivalScene(Scene):
                 hole_index = randint(0, len(self.unactive_holes) - 1)
                 hole = self.unactive_holes[hole_index]
 
-                mole = Mole(hole.position, "mole1.png", hole.coordenates)
+                mole = Mole(hole.position, "mole.png", hole.coordenates)
                 self.actors_dict['moles'].add(mole)
                 mole.hole = hole
                 self.unactive_holes.remove(hole)
 
     def refresh_player(self):
-        if self.player.lives <= 0:
-            self.next_scene = EndScene(self.player, self.screen)
+        if self.context['player'].lives <= 0:
+            self.next_scene = EndScene(self.context)
             self.run = False
 
     def play(self, clock):
@@ -316,8 +336,8 @@ class Game:
 
     def loop(self):
         clock = pygame.time.Clock()
-        dt = 50
-        scene = SurvivalScene(dt, self.player, self.screen)
+        context = {'dt': 50, 'player': self.player, 'screen': self.screen}
+        scene = IntroScene(context)
 
         while scene:
             scene = scene.play(clock)
@@ -326,7 +346,7 @@ class Game:
 
 
 def main():
-    game = Game((800, 600))
+    game = Game((480, 320))
     game.loop()
 
 if __name__ == '__main__':
