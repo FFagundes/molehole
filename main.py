@@ -353,7 +353,7 @@ class Game:
             android.map_key(android.KEYCODE_BACK, pygame.K_ESCAPE)
 
         self.player = Player()
-        self.screen = pygame.display.set_mode(size, pygame.FULLSCREEN)
+        self.screen = pygame.display.set_mode(size)
         self.purge()
         # pygame.mouse.set_visible(0)
 
