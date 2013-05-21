@@ -10,10 +10,10 @@ from random import randint
 
 try:
     import android
+    images_dir = os.path.join("")
 except ImportError:
     android = None
-
-images_dir = os.path.join("images")
+    images_dir = os.path.join("images")
 
 
 class Background:
@@ -106,7 +106,7 @@ class Mole(GameObject):
 
     coordenates = (0, 0)
     alive = True
-    alive_timer = 60
+    alive_timer = 25
     killed = False
 
     def __init__(self, position, image, coordenates):
@@ -151,7 +151,7 @@ class EndScene(Scene):
 
         self.background.draw(self.context['screen'])
         self.context['screen'].blit(score, (align, 170))
-        pygame.display.flip()
+        pygame.display.update()
 
         pygame.time.delay(5000)
 
@@ -164,17 +164,36 @@ class IntroScene(Scene):
 
     def __init__(self, context):
         Scene.__init__(self, context)
+        self.fase = 0
+
+    def first_screen(self):
         self.background = Background("fatec_logo.png")
-
-    def play(self, clock):
         self.background.draw(self.context['screen'])
-        pygame.display.flip()
-        pygame.time.delay(5000)
+        pygame.display.update()
 
+    def second_screen(self):
         self.background = Background("bug_logo.png")
         self.background.draw(self.context['screen'])
-        pygame.display.flip()
-        pygame.time.delay(5000)
+        pygame.display.update()
+
+    def loop(self):
+        if not self.timer and self.fase == 0:
+            self.second_screen()
+            self.fase = 1
+            self.timer = 120
+            return
+
+        elif not self.timer and self.fase == 1:
+            self.run = False
+
+        self.timer -= 1
+
+    def play(self, clock):
+        self.first_screen()
+
+        while self.run:
+            clock.tick(24)
+            self.loop()
 
         return SurvivalScene(self.context)
 
@@ -293,7 +312,7 @@ class SurvivalScene(Scene):
             self.run = False
 
     def play(self, clock):
-        self.difficulty = 100 / 5
+        self.difficulty = 10
         self.unactive_holes = []
         self.active_holes = []
         self.actors_dict = {
@@ -304,12 +323,12 @@ class SurvivalScene(Scene):
         self.generate_holes()
 
         while self.run:
-            clock.tick(1200 / 50)
+            clock.tick(24)
             self.handle_events()
             self.actors_update()
             self.manage()
             self.actors_draw()
-            pygame.display.flip()
+            pygame.display.update()
 
         return self.next_scene
 
@@ -321,17 +340,21 @@ class Game:
     screen_size = None
     run = True
 
+    def purge(self):
+        """Necessary to clear the flash screen buffer"""
+        pygame.display.update()
+        pygame.display.update()
+
     def __init__(self, size):
 
         pygame.init()
-
         if android:
             android.init()
             android.map_key(android.KEYCODE_BACK, pygame.K_ESCAPE)
 
         self.player = Player()
-        self.screen = pygame.display.set_mode(size)
-        pygame.display.set_caption('Mole Hole')
+        self.screen = pygame.display.set_mode(size, pygame.FULLSCREEN)
+        self.purge()
         # pygame.mouse.set_visible(0)
 
     def loop(self):
