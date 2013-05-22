@@ -131,9 +131,16 @@ class Scene:
     run = True
     next_scene = None
     context = None
+    quit = False
 
     def __init__(self, context):
         self.context = context
+
+    def handle_events(self):
+        for event in pygame.event.get():
+            if event.type == pygame.QUIT:
+                self.run = False
+                self.quit = True
 
 
 class EndScene(Scene):
@@ -177,6 +184,7 @@ class IntroScene(Scene):
         pygame.display.update()
 
     def loop(self):
+        self.handle_events()
         if not self.timer and self.fase == 0:
             self.second_screen()
             self.fase = 1
@@ -194,6 +202,9 @@ class IntroScene(Scene):
         while self.run:
             clock.tick(24)
             self.loop()
+
+        if self.quit:
+            return False
 
         return SurvivalScene(self.context)
 
