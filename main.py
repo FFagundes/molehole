@@ -71,14 +71,20 @@ class Button(GameObject):
         self.height = size[1]
 
     def inside_x(self, x):
-        return x < self.position[0] and x > self.position[0] + self.width
+        return x >= self.position[0] and x <= self.position[0] + self.width
 
     def inside_y(self, y):
-        return y < self.position[1] and y > self.position[1] + self.height
+        return y >= self.position[1] and y <= self.position[1] + self.height
 
     def check_click(self, position):
-        x, y = pygame.mouse.get_pos()
+        x, y = position
         return self.inside_x(x) and self.inside_y(y)
+
+    def click(self):
+        pass
+
+    def hover(self):
+        pass
 
 
 class Sign(GameObject):
@@ -152,9 +158,8 @@ class Scene:
     context = None
     quit = False
 
-    actors_dict = {"buttons": pygame.sprite.RenderPlain()}
-
     def __init__(self, context):
+        self.actors_dict = {"buttons": pygame.sprite.RenderPlain()}
         self.context = context
 
     def handle_events(self):
@@ -164,7 +169,9 @@ class Scene:
                 self.quit = True
 
             elif event.type == pygame.MOUSEBUTTONDOWN:
-                pass
+                for button in self.actors_dict['buttons']:
+                    if button.check_click(pygame.mouse.get_pos()):
+                        print button.position
 
 
 class EndScene(Scene):
@@ -220,13 +227,58 @@ class IntroScene(Scene):
 class TheBugSplashScene(IntroScene):
     def __init__(self, context):
         IntroScene.__init__(self, context, 'bug_logo.png')
-        self.next_scene = SurvivalScene(self.context)
+        self.next_scene = TitleScene(self.context)
 
 
 class FatecSplashScene(IntroScene):
     def __init__(self, context):
         IntroScene.__init__(self, context, 'fatec_logo.png')
         self.next_scene = TheBugSplashScene(self.context)
+
+
+class TitleScene(Scene):
+
+    def __init__(self, context):
+        Scene.__init__(self, context)
+        self.background = Background('title_screen.png')
+
+    def click_event(self):
+        for button in self.actors_dict['buttons']:
+            if button.check_click(pygame.mouse.get_pos()):
+                self.run = False
+                self.next_scene = SurvivalScene(self.context)
+
+    def handle_events(self):
+        for event in pygame.event.get():
+            if event.type == pygame.QUIT:
+                self.run = False
+                self.quit = True
+
+            elif event.type == pygame.MOUSEBUTTONDOWN:
+                self.click_event()
+
+    def actors_draw(self):
+        self.background.draw(self.context['screen'])
+        for actor in self.actors_dict.values():
+            actor.draw(self.context['screen'])
+
+    def loop(self):
+        self.handle_events()
+        self.actors_draw()
+        pygame.display.update()
+
+    def play(self, clock):
+        start = Button((100, 100), 'mole.png', (81, 73))
+        self.actors_dict['buttons'].add(start)
+
+        while self.run:
+            clock.tick(24)
+            self.loop()
+
+        if self.quit:
+            return False
+
+        return self.next_scene
 
 
 class SurvivalScene(Scene):
@@ -304,13 +356,17 @@ class SurvivalScene(Scene):
             if not mole.alive:
                 self.kill_mole(mole)
 
-    def manage(self):
+    def loop(self):
+        self.handle_events()
+        self.actors_update()
         self.create_moles()
         self.refresh_moles()
         self.refresh_holes()
         self.refresh_player()
         self.score_sign.score = self.context['player'].score
         self.lives_sign.score = self.context['player'].lives
+        self.actors_draw()
+        pygame.display.update()
 
     def generate_holes(self):
         for (x, lin) in enumerate(self.level_map):
@@ -348,16 +404,11 @@ class SurvivalScene(Scene):
         self.active_holes = []
         self.actors_dict['holes'] = pygame.sprite.RenderPlain()
         self.actors_dict['moles'] = pygame.sprite.RenderPlain()
-
         self.generate_holes()
 
         while self.run:
             clock.tick(24)
-            self.handle_events()
-            self.actors_update()
-            self.manage()
-            self.actors_draw()
-            pygame.display.update()
+            self.loop()
 
         return self.next_scene
 
@@ -389,7 +440,7 @@ class Game:
     def loop(self):
         clock = pygame.time.Clock()
         context = {'dt': 50, 'player': self.player, 'screen': self.screen}
-        scene = FatecSplashScene(context)
+        scene = TitleScene(context)
 
         while scene:
             scene = scene.play(clock)
