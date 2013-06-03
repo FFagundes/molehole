@@ -83,9 +83,6 @@ class Button(GameObject):
     def click(self):
         pass
 
-    def hover(self):
-        pass
-
 
 class Sign(GameObject):
 
@@ -166,12 +163,20 @@ class Scene:
         for event in pygame.event.get():
             if event.type == pygame.QUIT:
                 self.run = False
-                self.quit = True
 
             elif event.type == pygame.MOUSEBUTTONDOWN:
                 for button in self.actors_dict['buttons']:
                     if button.check_click(pygame.mouse.get_pos()):
                         print button.position
+
+    def play(self, clock):
+        self.start()
+
+        while self.run:
+            clock.tick(24)
+            self.loop()
+
+        return self.next_scene
 
 
 class EndScene(Scene):
@@ -210,18 +215,9 @@ class IntroScene(Scene):
 
         self.timer -= 1
 
-    def play(self, clock):
+    def start(self):
         self.background.draw(self.context['screen'])
         pygame.display.update()
-
-        while self.run:
-            clock.tick(24)
-            self.loop()
-
-        if self.quit:
-            return False
-
-        return self.next_scene
 
 
 class TheBugSplashScene(IntroScene):
@@ -267,18 +263,9 @@ class TitleScene(Scene):
         self.actors_draw()
         pygame.display.update()
 
-    def play(self, clock):
+    def start(self):
         start = Button((100, 100), 'mole.png', (81, 73))
         self.actors_dict['buttons'].add(start)
-
-        while self.run:
-            clock.tick(24)
-            self.loop()
-
-        if self.quit:
-            return False
-
-        return self.next_scene
 
 
 class SurvivalScene(Scene):
@@ -398,19 +385,13 @@ class SurvivalScene(Scene):
             self.next_scene = EndScene(self.context)
             self.run = False
 
-    def play(self, clock):
+    def start(self):
         self.difficulty = 10
         self.unactive_holes = []
         self.active_holes = []
         self.actors_dict['holes'] = pygame.sprite.RenderPlain()
         self.actors_dict['moles'] = pygame.sprite.RenderPlain()
         self.generate_holes()
-
-        while self.run:
-            clock.tick(24)
-            self.loop()
-
-        return self.next_scene
 
 
 class Game:
@@ -440,7 +421,7 @@ class Game:
     def loop(self):
         clock = pygame.time.Clock()
         context = {'dt': 50, 'player': self.player, 'screen': self.screen}
-        scene = TitleScene(context)
+        scene = FatecSplashScene(context)
 
         while scene:
             scene = scene.play(clock)
