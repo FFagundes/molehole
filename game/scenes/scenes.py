@@ -3,9 +3,9 @@
 import pygame
 from random import randint
 
-from utils import Background, Sign, LivesSign, Hole
-from moles import Mole
-from buttons import Button
+from game.utils import Background, Sign, LivesSign, Hole
+from game.moles import Mole
+from game.buttons import Button
 
 
 class Scene:
@@ -60,37 +60,6 @@ class EndScene(Scene):
         pygame.time.delay(5000)
 
         return False
-
-
-class IntroScene(Scene):
-    timer = 120
-
-    def __init__(self, context, background):
-        Scene.__init__(self, context)
-        self.background = Background(background)
-
-    def loop(self):
-        self.handle_events()
-        if not self.timer:
-            self.run = False
-
-        self.timer -= 1
-
-    def start(self):
-        self.background.draw(self.context['screen'])
-        pygame.display.update()
-
-
-class TheBugSplashScene(IntroScene):
-    def __init__(self, context):
-        IntroScene.__init__(self, context, 'bug_logo.png')
-        self.next_scene = TitleScene(self.context)
-
-
-class FatecSplashScene(IntroScene):
-    def __init__(self, context):
-        IntroScene.__init__(self, context, 'fatec_logo.png')
-        self.next_scene = TheBugSplashScene(self.context)
 
 
 class TitleScene(Scene):
