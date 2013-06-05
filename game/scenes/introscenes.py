@@ -11,7 +11,6 @@ class IntroScene(Scene):
         self.background = Background(background)
 
     def loop(self):
-        self.handle_events()
         if not self.timer:
             self.run = False
 
