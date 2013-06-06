@@ -29,6 +29,17 @@ class Scene:
             else:
                 self.handle_events(event)
 
+    def redraw(self):
+        pass
+
+    def draw(self):
+        self.background.draw(self.context['screen'])
+        for actor in self.actors_dict.values():
+            actor.draw(self.context['screen'])
+
+        self.redraw()
+        pygame.display.update()
+
     def start(self):
         pass
 
@@ -42,6 +53,7 @@ class Scene:
             clock.tick(24)
             self.check_events()
             self.loop()
+            self.draw()
 
         return self.next_scene
 
@@ -84,15 +96,6 @@ class TitleScene(Scene):
     def handle_events(self, event):
             if event.type == pygame.MOUSEBUTTONDOWN:
                 self.click_event()
-
-    def actors_draw(self):
-        self.background.draw(self.context['screen'])
-        for actor in self.actors_dict.values():
-            actor.draw(self.context['screen'])
-
-    def loop(self):
-        self.actors_draw()
-        pygame.display.update()
 
     def start(self):
         start = Button((100, 100), 'mole.png', (81, 73))
@@ -139,11 +142,7 @@ class SurvivalScene(Scene):
         self.score_sign.update(self.context['dt'])
         self.lives_sign.update(self.context['dt'])
 
-    def actors_draw(self):
-        self.background.draw(self.context['screen'])
-        for actor in self.actors_dict.values():
-            actor.draw(self.context['screen'])
-
+    def redraw(self):
         self.score_sign.draw(self.context['screen'])
         self.lives_sign.draw(self.context['screen'])
 
@@ -178,8 +177,6 @@ class SurvivalScene(Scene):
         self.refresh_player()
         self.score_sign.score = self.context['player'].score
         self.lives_sign.score = self.context['player'].lives
-        self.actors_draw()
-        pygame.display.update()
 
     def generate_holes(self):
         for (x, lin) in enumerate(self.level_map):
