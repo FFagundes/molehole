@@ -3,7 +3,7 @@
 import pygame
 from random import randint
 
-from game.utils import Background, Sign, LivesSign, Hole
+from game.utils import Background, Sign, LivesSign, Hole, Player
 from game.moles import Mole
 from game.buttons import Button
 
@@ -99,6 +99,8 @@ class EndScene(TimerScene):
         self.score = font.render(str(self.context['player'].score),
                                                 True, (255, 255, 255))
         self.align = (440 - (self.score.get_width()))
+        self.context['player'].lives = 5
+        self.context['player'].lives = 5
 
     def redraw(self):
         self.context['screen'].blit(self.score, (self.align, 170))
@@ -121,7 +123,7 @@ class TitleScene(Scene):
                 self.click_event()
 
     def start(self):
-        start = Button((65, 140), 'btn_start.png', (162, 117))
+        start = Button((65, 140), 'btn_start.png')
         self.actors_dict['buttons'].add(start)
 
 
@@ -139,6 +141,7 @@ class SurvivalScene(Scene):
     def __init__(self, context):
         Scene.__init__(self, context)
         self.background = Background("background.png")
+        self.context['player'] = Player()
         self.score_sign = Sign(self.context['player'].score)
         self.lives_sign = LivesSign(self.context['player'].lives)
         self.next_scene = EndScene(self.context)

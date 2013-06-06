@@ -1,7 +1,6 @@
 # Encoding: UTF-8
 
 import pygame
-from game.utils import Player
 from game.scenes import FatecSplashScene
 
 try:
@@ -29,14 +28,13 @@ class Game(object):
             android.init()
             android.map_key(android.KEYCODE_BACK, pygame.K_ESCAPE)
 
-        self.player = Player()
         self.screen = pygame.display.set_mode(size)
         self.purge()
         # pygame.mouse.set_visible(0)
 
     def loop(self):
         clock = pygame.time.Clock()
-        context = {'dt': 50, 'player': self.player, 'screen': self.screen}
+        context = {'dt': 50, 'screen': self.screen}
         scene = FatecSplashScene(context)
 
         while scene:
