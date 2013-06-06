@@ -121,7 +121,7 @@ class TitleScene(Scene):
                 self.click_event()
 
     def start(self):
-        start = Button((100, 100), 'mole.png', (81, 73))
+        start = Button((65, 140), 'btn_start.png', (162, 117))
         self.actors_dict['buttons'].add(start)
 
 
