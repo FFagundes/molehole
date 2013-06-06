@@ -26,6 +26,7 @@ class Scene:
         for event in pygame.event.get():
             if event.type == pygame.QUIT:
                 self.run = False
+                self.next_scene = None
             else:
                 self.handle_events(event)
 
@@ -58,27 +59,49 @@ class Scene:
         return self.next_scene
 
 
-class EndScene(Scene):
-
+class TimerScene(Scene):
     timer = 120
 
-    def __init__(self, context):
+    def __init__(self, context, background):
         Scene.__init__(self, context)
-        self.background = Background("end_game.png")
+        self.background = Background(background)
 
-    def play(self, clock):
-        font = pygame.font.Font('FreeSans.ttf', 32)
-        score = font.render(str(self.context['player'].score),
-                                                True, (255, 255, 255))
-        align = (440 - (score.get_width()))
+    def loop(self):
+        if not self.timer:
+            self.run = False
 
+        self.timer -= 1
+
+    def start(self):
         self.background.draw(self.context['screen'])
-        self.context['screen'].blit(score, (align, 170))
         pygame.display.update()
 
-        pygame.time.delay(5000)
 
-        return False
+class TheBugSplashScene(TimerScene):
+    def __init__(self, context):
+        TimerScene.__init__(self, context, 'bug_logo.png')
+        self.next_scene = TitleScene(self.context)
+
+
+class FatecSplashScene(TimerScene):
+    def __init__(self, context):
+        TimerScene.__init__(self, context, 'fatec_logo.png')
+        self.next_scene = TheBugSplashScene(self.context)
+
+
+class EndScene(TimerScene):
+    def __init__(self, context):
+        TimerScene.__init__(self, context, 'end_game.png')
+        self.next_scene = TitleScene(self.context)
+
+    def start(self):
+        font = pygame.font.Font('FreeSans.ttf', 32)
+        self.score = font.render(str(self.context['player'].score),
+                                                True, (255, 255, 255))
+        self.align = (440 - (self.score.get_width()))
+
+    def redraw(self):
+        self.context['screen'].blit(self.score, (self.align, 170))
 
 
 class TitleScene(Scene):
@@ -118,6 +141,7 @@ class SurvivalScene(Scene):
         self.background = Background("background.png")
         self.score_sign = Sign(self.context['player'].score)
         self.lives_sign = LivesSign(self.context['player'].lives)
+        self.next_scene = EndScene(self.context)
 
     def click_event(self):
         x, y = pygame.mouse.get_pos()
@@ -206,7 +230,6 @@ class SurvivalScene(Scene):
 
     def refresh_player(self):
         if self.context['player'].lives <= 0:
-            self.next_scene = EndScene(self.context)
             self.run = False
 
     def start(self):
