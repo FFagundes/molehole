@@ -19,14 +19,42 @@ class Scene:
         self.actors_dict = {"buttons": pygame.sprite.RenderPlain()}
         self.context = context
 
+    def quit_event(self):
+        self.run = False
+        self.next_scene = None
+
+    def keydown_event(self):
+        pass
+
+    def keyup_event(self):
+        pass
+
+    def mousemotion_event(self):
+        pass
+
+    def mousebuttonup_event(self):
+        pass
+
+    def mousebuttondown_event(self):
+        pass
+
     def handle_events(self, event):
         pass
 
     def check_events(self):
         for event in pygame.event.get():
             if event.type == pygame.QUIT:
-                self.run = False
-                self.next_scene = None
+                self.quit_event()
+            elif event.type == pygame.KEYDOWN:
+                self.keydown_event()
+            elif event.type == pygame.KEYUP:
+                self.keyup_event()
+            elif event.type == pygame.MOUSEMOTION:
+                self.mousemotion_event()
+            elif event.type == pygame.MOUSEBUTTONUP:
+                self.mousebuttonup_event()
+            elif event.type == pygame.MOUSEBUTTONDOWN:
+                self.mousebuttondown_event()
             else:
                 self.handle_events(event)
 
@@ -112,15 +140,11 @@ class TitleScene(Scene):
         Scene.__init__(self, context)
         self.background = Background('title_screen.png')
 
-    def click_event(self):
+    def mousebuttondown_event(self):
         for button in self.actors_dict['buttons']:
             if button.check_click(pygame.mouse.get_pos()):
                 self.run = False
                 self.next_scene = SurvivalScene(self.context)
-
-    def handle_events(self, event):
-            if event.type == pygame.MOUSEBUTTONDOWN:
-                self.click_event()
 
     def start(self):
         start = Button((65, 140), 'btn_start.png')
@@ -146,7 +170,7 @@ class SurvivalScene(Scene):
         self.lives_sign = LivesSign(self.context['player'].lives)
         self.next_scene = EndScene(self.context)
 
-    def click_event(self):
+    def mousebuttondown_event(self):
         x, y = pygame.mouse.get_pos()
 
         y = (y - self.top_margin) / self.hole_height
@@ -155,10 +179,6 @@ class SurvivalScene(Scene):
         for mole in self.actors_dict['moles']:
             if mole.coordenates == (y, x):
                 self.kill_mole(mole, True)
-
-    def handle_events(self, event):
-            if event.type == pygame.MOUSEBUTTONDOWN:
-                self.click_event()
 
     def actors_update(self):
         self.background.update(self.context['dt'])
