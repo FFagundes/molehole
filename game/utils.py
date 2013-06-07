@@ -94,5 +94,5 @@ class Hole(GameObject):
 
 class Player(object):
 
-    lives = 9999
+    lives = 5
     score = 0
