@@ -1,11 +1,13 @@
 # Encoding: UTF-8
 
 import pygame
+import os
 from random import randint
 
 from game.utils import Background, Sign, LivesSign, Hole, Player
 from game.moles import Mole
 from game.buttons import Button
+from settings import fonts_dir
 
 
 class Scene:
@@ -123,7 +125,8 @@ class EndScene(TimerScene):
         self.next_scene = TitleScene(self.context)
 
     def start(self):
-        font = pygame.font.Font('FreeSans.ttf', 32)
+        font_path = os.path.join(fonts_dir, 'FreeSans.ttf')
+        font = pygame.font.Font(font_path, 32)
         self.score = font.render(str(self.context['player'].score),
                                                 True, (255, 255, 255))
         self.align = (440 - (self.score.get_width()))

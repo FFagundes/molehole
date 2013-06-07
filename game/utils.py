@@ -2,7 +2,7 @@
 
 import os
 import pygame
-from settings import images_dir
+from settings import images_dir, fonts_dir
 
 
 class Background(object):
@@ -54,7 +54,8 @@ class Sign(GameObject):
 
     def __init__(self, score, position=(175, 33), image='sign.png'):
         GameObject.__init__(self, image, position)
-        self.font = pygame.font.Font('FreeSans.ttf', 16)
+        font_path = os.path.join(fonts_dir, 'FreeSans.ttf')
+        self.font = pygame.font.Font(font_path, 16)
         self.label_position = (position[0] + 10, position[1] + 13)
         self.score = score
 
