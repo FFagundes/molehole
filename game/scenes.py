@@ -128,9 +128,9 @@ class TitleScene(Scene):
 
 
 class SurvivalScene(Scene):
-    hole_width = 81
+    hole_width = 86
     hole_height = 73
-    left_margin = 24
+    left_margin = 13
     top_margin = 96
     level_map = [
                     [1, 1, 1, 1, 1],
@@ -183,7 +183,7 @@ class SurvivalScene(Scene):
 
     def kill_mole(self, mole, killed=False):
         if killed:
-            self.context['player'].score += 1
+            self.context['player'].score += mole.points
         else:
             self.context['player'].lives -= 1
 

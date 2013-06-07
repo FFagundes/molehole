@@ -9,6 +9,7 @@ class Mole(GameObject):
     alive = True
     alive_timer = 50
     killed = False
+    points = 1
 
     def __init__(self, position, image, coordenates):
         GameObject.__init__(self, image, position)
