@@ -71,6 +71,16 @@ class Scene:
         self.redraw()
         pygame.display.update()
 
+    def reupdate(self):
+        pass
+
+    def update(self):
+        self.background.update(self.context['dt'])
+        for actor in self.actors_dict.values():
+            actor.update(self.context['dt'])
+
+        self.reupdate()
+
     def start(self):
         pass
 
@@ -84,6 +94,7 @@ class Scene:
             clock.tick(24)
             self.check_events()
             self.loop()
+            self.update()
             self.draw()
 
         return self.next_scene
@@ -101,10 +112,6 @@ class TimerScene(Scene):
             self.run = False
 
         self.timer -= 1
-
-    def start(self):
-        self.background.draw(self.context['screen'])
-        pygame.display.update()
 
 
 class TheBugSplashScene(TimerScene):
@@ -183,12 +190,7 @@ class SurvivalScene(Scene):
             if mole.coordenates == (y, x):
                 self.kill_mole(mole, True)
 
-    def actors_update(self):
-        self.background.update(self.context['dt'])
-
-        for actor in self.actors_dict.values():
-            actor.update(self.context['dt'])
-
+    def reupdate(self):
         self.score_sign.update(self.context['dt'])
         self.lives_sign.update(self.context['dt'])
 
@@ -220,7 +222,6 @@ class SurvivalScene(Scene):
                 self.kill_mole(mole)
 
     def loop(self):
-        self.actors_update()
         self.create_moles()
         self.refresh_moles()
         self.refresh_holes()
