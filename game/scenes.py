@@ -7,7 +7,12 @@ from random import randint
 from game.utils import Background, Sign, LivesSign, Hole, Player
 from game.moles import Mole
 from game.buttons import Button
-from settings import fonts_dir
+from settings import fonts_dir, sounds_dir, project_dir
+
+try:
+    import pygame.mixer as mixer
+except ImportError:
+    import android.mixer as mixer
 
 
 class Scene:
@@ -16,6 +21,7 @@ class Scene:
     next_scene = None
     context = None
     quit = False
+    music = None
 
     def __init__(self, context):
         self.actors_dict = {"buttons": pygame.sprite.RenderPlain()}
@@ -48,6 +54,7 @@ class Scene:
             if event.type == pygame.QUIT:
                 self.quit_event()
             elif event.type == pygame.KEYDOWN:
+                self.quit_event()
                 self.keydown_event()
             elif event.type == pygame.KEYUP:
                 self.keyup_event()
@@ -87,7 +94,21 @@ class Scene:
     def loop(self):
         pass
 
+    def set_music(self, sound):
+        path = os.path.join(sounds_dir, sound)
+        self.music = mixer.music.load(path)
+
+    def handle_music(self):
+        # import pdb; pdb.set_trace()
+        if self.music:
+            if self.context['music'] == 'play':
+                mixer.music.stop()
+                mixer.music.play(-1)
+            elif self.context['music'] == 'off':
+                mixer.music.stop()
+
     def play(self, clock):
+        self.handle_music()
         self.start()
 
         while self.run:
@@ -118,18 +139,28 @@ class TheBugSplashScene(TimerScene):
     def __init__(self, context):
         TimerScene.__init__(self, context, 'bug_logo.png')
         self.next_scene = TitleScene(self.context)
+        self.set_music('title_music.mp3')
+
+    def start(self):
+        self.context['music'] = 'play'
 
 
 class FatecSplashScene(TimerScene):
     def __init__(self, context):
         TimerScene.__init__(self, context, 'fatec_logo.png')
         self.next_scene = TheBugSplashScene(self.context)
+        # self.set_music('title_music.mp3')
+        self.music = mixer.music.load('sounds/title_music.mp3')
+
+    def start(self):
+        self.context['music'] = 'on'
 
 
 class EndScene(TimerScene):
     def __init__(self, context):
         TimerScene.__init__(self, context, 'end_game.png')
         self.next_scene = TitleScene(self.context)
+        self.set_music('gag.mp3')
 
     def start(self):
         font_path = os.path.join(fonts_dir, 'FreeSans.ttf')
@@ -139,9 +170,29 @@ class EndScene(TimerScene):
         self.align = (440 - (self.score.get_width()))
         self.context['player'].lives = 5
         self.context['player'].lives = 5
+        self.get_score()
 
     def redraw(self):
         self.context['screen'].blit(self.score, (self.align, 170))
+
+    def get_score(self):
+        path = os.path.join(project_dir, 'score.txt')
+        score = self.context['player'].score
+
+        try:
+            score_file = open(path, 'r')
+            file_score = int(score_file.read())
+            if score < file_score:
+                score = file_score
+            score_file.close()
+        except IOError:
+            pass
+
+        score_file = open(path, 'w')
+        score_file.write(str(score))
+        score_file.close()
+        # score_list = score_file.read().split('\\n')
+        # import pdb; pdb.set_trace()
 
 
 class TitleScene(Scene):
@@ -149,6 +200,7 @@ class TitleScene(Scene):
     def __init__(self, context):
         Scene.__init__(self, context)
         self.background = Background('title_screen.png')
+        self.set_music('title_music.mp3')
 
     def mousebuttondown_event(self):
         for button in self.actors_dict['buttons']:

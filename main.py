@@ -34,7 +34,7 @@ class Game(object):
 
     def loop(self):
         clock = pygame.time.Clock()
-        context = {'dt': 50, 'screen': self.screen}
+        context = {'dt': 50, 'screen': self.screen, 'music': 'play'}
         scene = FatecSplashScene(context)
 
         while scene:
