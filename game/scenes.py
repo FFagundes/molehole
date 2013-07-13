@@ -94,20 +94,23 @@ class Scene:
     def loop(self):
         pass
 
-    def set_music(self, sound):
-        path = os.path.join(sounds_dir, sound)
-        self.music = mixer.music.load(path)
+    def set_music(self):
+        if self.music[0] and self.context['music'] == 'play':
+            path = os.path.join(sounds_dir, self.music[0])
+            mixer.music.load(path)
 
     def handle_music(self):
-        # import pdb; pdb.set_trace()
-        if self.music:
-            if self.context['music'] == 'play':
-                mixer.music.stop()
-                mixer.music.play(-1)
-            elif self.context['music'] == 'off':
-                mixer.music.stop()
+        if self.context['music'] == 'play':
+            mixer.music.stop()
+            mixer.music.play(self.music[1])
+        elif self.context['music'] == 'off':
+            mixer.music.stop()
+
+    def end():
+        pass
 
     def play(self, clock):
+        self.set_music()
         self.handle_music()
         self.start()
 
@@ -117,6 +120,8 @@ class Scene:
             self.loop()
             self.update()
             self.draw()
+
+        self.end()
 
         return self.next_scene
 
@@ -139,20 +144,19 @@ class TheBugSplashScene(TimerScene):
     def __init__(self, context):
         TimerScene.__init__(self, context, 'bug_logo.png')
         self.next_scene = TitleScene(self.context)
-        self.set_music('title_music.mp3')
+        self.music = ('title_music.mp3', -1)
 
-    def start(self):
-        self.context['music'] = 'play'
+    def end(self):
+        self.context['music'] = 'on'
 
 
 class FatecSplashScene(TimerScene):
     def __init__(self, context):
         TimerScene.__init__(self, context, 'fatec_logo.png')
         self.next_scene = TheBugSplashScene(self.context)
-        # self.set_music('title_music.mp3')
-        self.music = mixer.music.load('sounds/title_music.mp3')
+        self.music = ('title_music.mp3', -1)
 
-    def start(self):
+    def end(self):
         self.context['music'] = 'on'
 
 
@@ -160,7 +164,7 @@ class EndScene(TimerScene):
     def __init__(self, context):
         TimerScene.__init__(self, context, 'end_game.png')
         self.next_scene = TitleScene(self.context)
-        self.set_music('gag.mp3')
+        self.music = ('gag.mp3', 0)
 
     def start(self):
         font_path = os.path.join(fonts_dir, 'FreeSans.ttf')
@@ -192,7 +196,9 @@ class EndScene(TimerScene):
         score_file.write(str(score))
         score_file.close()
         # score_list = score_file.read().split('\\n')
-        # import pdb; pdb.set_trace()
+
+    def end(self):
+        self.context['music'] = 'play'
 
 
 class TitleScene(Scene):
@@ -200,7 +206,7 @@ class TitleScene(Scene):
     def __init__(self, context):
         Scene.__init__(self, context)
         self.background = Background('title_screen.png')
-        self.set_music('title_music.mp3')
+        self.music = ('title_music.mp3', -1)
 
     def mousebuttondown_event(self):
         for button in self.actors_dict['buttons']:
@@ -211,6 +217,9 @@ class TitleScene(Scene):
     def start(self):
         start = Button((65, 140), 'btn_start.png')
         self.actors_dict['buttons'].add(start)
+
+    def end(self):
+        self.context['music'] = 'play'
 
 
 class SurvivalScene(Scene):
@@ -231,6 +240,7 @@ class SurvivalScene(Scene):
         self.score_sign = Sign(self.context['player'].score)
         self.lives_sign = LivesSign(self.context['player'].lives)
         self.next_scene = EndScene(self.context)
+        self.music = ('wooly_bully.mp3', -1)
 
     def mousebuttondown_event(self):
         x, y = pygame.mouse.get_pos()
@@ -318,3 +328,6 @@ class SurvivalScene(Scene):
         self.actors_dict['holes'] = pygame.sprite.RenderPlain()
         self.actors_dict['moles'] = pygame.sprite.RenderPlain()
         self.generate_holes()
+
+    def end(self):
+        self.context['music'] = 'play'
