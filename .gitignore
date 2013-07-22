@@ -1,5 +1,5 @@
 *.py[co]
-
+score.txt
 # Packages
 *.egg
 *.egg-info

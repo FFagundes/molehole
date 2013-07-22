@@ -4,7 +4,7 @@ import pygame
 import os
 from random import randint
 
-from game.utils import Background, Sign, LivesSign, Hole, Player
+from game.utils import Background, Sign, LivesSign, Hole, Player, HighScore
 from game.moles import Mole
 from game.buttons import Button
 from settings import fonts_dir, sounds_dir, project_dir
@@ -173,29 +173,23 @@ class EndScene(TimerScene):
                                                 True, (255, 255, 255))
         self.align = (440 - (self.score.get_width()))
         self.context['player'].lives = 5
-        self.context['player'].lives = 5
         self.get_score()
+        self.high_score = HighScore(self.context['high_score'])
 
     def redraw(self):
         self.context['screen'].blit(self.score, (self.align, 170))
+        self.high_score.draw(self.context['screen'])
 
     def get_score(self):
         path = os.path.join(project_dir, 'score.txt')
         score = self.context['player'].score
+        high_score = self.context['high_score']
 
-        try:
-            score_file = open(path, 'r')
-            file_score = int(score_file.read())
-            if score < file_score:
-                score = file_score
+        if score > high_score:
+            score_file = open(path, 'w')
+            score_file.write(str(score))
             score_file.close()
-        except IOError:
-            pass
-
-        score_file = open(path, 'w')
-        score_file.write(str(score))
-        score_file.close()
-        # score_list = score_file.read().split('\\n')
+            self.context['high_score'] = score
 
     def end(self):
         self.context['music'] = 'play'
@@ -217,6 +211,10 @@ class TitleScene(Scene):
     def start(self):
         start = Button((65, 140), 'btn_start.png')
         self.actors_dict['buttons'].add(start)
+        self.high_score = HighScore(self.context['high_score'])
+
+    def redraw(self):
+        self.high_score.draw(self.context['screen'])
 
     def end(self):
         self.context['music'] = 'play'

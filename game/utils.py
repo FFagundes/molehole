@@ -50,6 +50,19 @@ class GameObject(pygame.sprite.Sprite):
         self.rect.topleft = (pos[0], pos[1])
 
 
+class HighScore(object):
+
+    def __init__(self, high_score, position=(10, 295)):
+        self.score = str(high_score)
+        self.position = position
+        font_path = os.path.join(fonts_dir, 'FreeSans.ttf')
+        self.font = pygame.font.Font(font_path, 16)
+        self.label = self.font.render(self.score, False, (200, 200, 100))
+
+    def draw(self, screen):
+        screen.blit(self.label, self.position)
+
+
 class Sign(GameObject):
 
     def __init__(self, score, position=(175, 33), image='sign.png'):
