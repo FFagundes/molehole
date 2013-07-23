@@ -37,14 +37,11 @@ class HammerBlow(object):
     sounds = []
 
     def __init__(self):
-        blow1 = mixer.Sound(os.path.join(sounds_dir, 'blow1.ogg'))
-        blow2 = mixer.Sound(os.path.join(sounds_dir, 'blow2.ogg'))
-        blow3 = mixer.Sound(os.path.join(sounds_dir, 'blow3.ogg'))
-        blow4 = mixer.Sound(os.path.join(sounds_dir, 'blow4.ogg'))
-        self.sounds.append(blow1)
-        self.sounds.append(blow2)
-        self.sounds.append(blow3)
-        self.sounds.append(blow4)
+
+        for x in range(4):
+            sound_mixer = mixer.Sound(os.path.join(
+                                sounds_dir, 'blow' + str(x + 1) + '.ogg'))
+            self.sounds.append(sound_mixer)
 
     def play(self):
         blow = randint(0, len(self.sounds) - 1)
