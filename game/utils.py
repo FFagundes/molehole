@@ -2,7 +2,13 @@
 
 import os
 import pygame
-from settings import images_dir, fonts_dir
+from settings import images_dir, fonts_dir, sounds_dir
+from random import randint
+
+try:
+    import pygame.mixer as mixer
+except ImportError:
+    import android.mixer as mixer
 
 
 class Background(object):
@@ -25,6 +31,24 @@ class Background(object):
 
     def draw(self, screen):
         screen.blit(self.image, (0, 0))
+
+
+class HammerBlow(object):
+    sounds = []
+
+    def __init__(self):
+        blow1 = mixer.Sound(os.path.join(sounds_dir, 'blow1.ogg'))
+        blow2 = mixer.Sound(os.path.join(sounds_dir, 'blow2.ogg'))
+        blow3 = mixer.Sound(os.path.join(sounds_dir, 'blow3.ogg'))
+        blow4 = mixer.Sound(os.path.join(sounds_dir, 'blow4.ogg'))
+        self.sounds.append(blow1)
+        self.sounds.append(blow2)
+        self.sounds.append(blow3)
+        self.sounds.append(blow4)
+
+    def play(self):
+        blow = randint(0, len(self.sounds) - 1)
+        self.sounds[blow].play()
 
 
 class GameObject(pygame.sprite.Sprite):

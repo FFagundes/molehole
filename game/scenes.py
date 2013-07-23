@@ -4,7 +4,7 @@ import pygame
 import os
 from random import randint
 
-from game.utils import Background, Sign, LivesSign, Hole, Player, HighScore
+from game.utils import Background, Sign, LivesSign, Hole, Player, HighScore, HammerBlow
 from game.moles import Mole
 from game.buttons import Button
 from settings import fonts_dir, sounds_dir, project_dir
@@ -239,6 +239,7 @@ class SurvivalScene(Scene):
         self.lives_sign = LivesSign(self.context['player'].lives)
         self.next_scene = EndScene(self.context)
         self.music = ('wooly_bully.mp3', -1)
+        self.blow = HammerBlow()
 
     def mousebuttondown_event(self):
         x, y = pygame.mouse.get_pos()
@@ -249,6 +250,7 @@ class SurvivalScene(Scene):
         for mole in self.actors_dict['moles']:
             if mole.coordenates == (y, x):
                 self.kill_mole(mole, True)
+                self.blow.play()
 
     def reupdate(self):
         self.score_sign.update(self.context['dt'])
