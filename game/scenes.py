@@ -240,6 +240,8 @@ class SurvivalScene(Scene):
         self.next_scene = EndScene(self.context)
         self.music = ('wooly_bully.mp3', -1)
         self.blow = HammerBlow()
+        self.miss_sound = mixer.Sound(os.path.join(sounds_dir, 'cancel.ogg'))
+        self.fail_sound = mixer.Sound(os.path.join(sounds_dir, 'stare.ogg'))
 
     def mousebuttondown_event(self):
         x, y = pygame.mouse.get_pos()
@@ -251,6 +253,8 @@ class SurvivalScene(Scene):
             if mole.coordenates == (y, x):
                 self.kill_mole(mole, True)
                 self.blow.play()
+            else:
+                self.miss_sound.play()
 
     def reupdate(self):
         self.score_sign.update(self.context['dt'])
@@ -273,6 +277,7 @@ class SurvivalScene(Scene):
             self.context['player'].score += mole.points
         else:
             self.context['player'].lives -= 1
+            self.fail_sound.play()
 
         self.active_holes.append(mole.hole)
         mole.hole.active = True
