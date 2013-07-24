@@ -249,12 +249,16 @@ class SurvivalScene(Scene):
         y = (y - self.top_margin) / self.hole_height
         x = (x - self.left_margin) / self.hole_width
 
+        hit = False
         for mole in self.actors_dict['moles']:
             if mole.coordenates == (y, x):
                 self.kill_mole(mole, True)
                 self.blow.play()
-            else:
-                self.miss_sound.play()
+                hit = True
+                break
+
+        if not hit:
+            self.miss_sound.play()
 
     def reupdate(self):
         self.score_sign.update(self.context['dt'])
