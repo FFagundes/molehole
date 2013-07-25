@@ -11,7 +11,7 @@ class Mole(GameObject):
     killed = False
     points = 1
 
-    def __init__(self, position, image, coordenates):
+    def __init__(self, position, coordenates, image='mole.png'):
         GameObject.__init__(self, image, position)
         self.coordenates = coordenates
 
@@ -20,3 +20,9 @@ class Mole(GameObject):
 
         if not self.alive_timer:
             self.alive = False
+
+
+class FemaleMole(Mole):
+
+    def __init__(self, position, coordenates, image='female_mole.png'):
+        Mole.__init__(self, position, coordenates, image)

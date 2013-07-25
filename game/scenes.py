@@ -5,8 +5,8 @@ import os
 from random import randint
 
 from game.utils import Background, Sign, Hole, Player, HighScore, HammerBlow
-from game.moles import Mole
-from game.buttons import Button
+from game.moles import Mole, FemaleMole
+from game.buttons import StartButton, CreditsButton, BackButton
 from settings import fonts_dir, sounds_dir, project_dir
 
 try:
@@ -212,8 +212,8 @@ class TitleScene(Scene):
                     self.next_scene = CreditsScene(self.context)
 
     def start(self):
-        start = Button((65, 140), 'btn_start.png', 'start')
-        credits = Button((200, 140), 'btn_start.png', 'credits')
+        start = StartButton()
+        credits = CreditsButton()
         self.actors_dict['buttons'].add(start)
         self.actors_dict['buttons'].add(credits)
         self.high_score = HighScore(self.context['high_score'])
@@ -239,7 +239,7 @@ class CreditsScene(Scene):
                 self.next_scene = TitleScene(self.context)
 
     def start(self):
-        start = Button((65, 140), 'btn_start.png', 'back')
+        start = BackButton()
         self.actors_dict['buttons'].add(start)
 
     def end(self):
@@ -330,7 +330,6 @@ class SurvivalScene(Scene):
         self.refresh_holes()
         self.refresh_player()
         self.score_sign.score = self.context['player'].score
-        print self.difficulty
 
     def generate_holes(self):
         for (x, lin) in enumerate(self.level_map):
@@ -351,8 +350,10 @@ class SurvivalScene(Scene):
             if self.unactive_holes:
                 hole_index = randint(0, len(self.unactive_holes) - 1)
                 hole = self.unactive_holes[hole_index]
-
-                mole = Mole(hole.position, "mole.png", hole.coordenates)
+                if randint(0, 4):
+                    mole = Mole(hole.position, hole.coordenates)
+                else:
+                    mole = FemaleMole(hole.position, hole.coordenates)
                 self.actors_dict['moles'].add(mole)
                 mole.hole = hole
                 self.unactive_holes.remove(hole)

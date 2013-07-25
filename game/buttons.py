@@ -21,3 +21,21 @@ class Button(GameObject):
 
     def click(self):
         pass
+
+
+class StartButton(Button):
+
+    def __init__(self, position=(65, 140), name='start', image='btn_start.png'):
+        Button.__init__(self, position, image, name)
+
+
+class CreditsButton(Button):
+
+    def __init__(self, position=(0, 0), name='credits', image='btn_credits.png'):
+        Button.__init__(self, position, image, name)
+
+
+class BackButton(Button):
+
+    def __init__(self, position=(300, 270), name='back', image='btn_credits.png'):
+        Button.__init__(self, position, image, name)
