@@ -47,7 +47,7 @@ class Game(object):
                     'screen': self.screen,
                     'music': 'play',
                     'high_score': self.get_high_score()}
-        scene = FatecSplashScene(context)
+        scene = TitleScene(context)
 
         while scene:
             scene = scene.play(clock)

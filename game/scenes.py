@@ -300,9 +300,17 @@ class SurvivalScene(Scene):
                 hole.active = False
                 hole.refresh_counter = 24
 
+    def improve_difficulty(self):
+        condition = not self.context['player'].score % 100 \
+                    and self.difficulty > 3 \
+                    and self.context['player'].score
+        if condition:
+            self.difficulty -= 1
+
     def kill_mole(self, mole, killed=False):
         if killed:
             self.context['player'].score += mole.points
+            self.improve_difficulty()
         else:
             self.context['player'].loose_life()
             self.fail_sound.play()
@@ -322,6 +330,7 @@ class SurvivalScene(Scene):
         self.refresh_holes()
         self.refresh_player()
         self.score_sign.score = self.context['player'].score
+        print self.difficulty
 
     def generate_holes(self):
         for (x, lin) in enumerate(self.level_map):
@@ -338,7 +347,6 @@ class SurvivalScene(Scene):
                     self.unactive_holes.append(hole)
 
     def create_moles(self):
-
         if not randint(0, self.difficulty):
             if self.unactive_holes:
                 hole_index = randint(0, len(self.unactive_holes) - 1)
