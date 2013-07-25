@@ -4,7 +4,7 @@ import pygame
 import os
 from random import randint
 
-from game.utils import Background, Sign, LivesSign, Hole, Player, HighScore, HammerBlow
+from game.utils import Background, Sign, Hole, Player, HighScore, HammerBlow
 from game.moles import Mole
 from game.buttons import Button
 from settings import fonts_dir, sounds_dir, project_dir
@@ -236,7 +236,6 @@ class SurvivalScene(Scene):
         self.background = Background("background.png")
         self.context['player'] = Player()
         self.score_sign = Sign(self.context['player'].score)
-        self.lives_sign = LivesSign(self.context['player'].lives)
         self.next_scene = EndScene(self.context)
         self.music = ('wooly_bully.mp3', -1)
         self.blow = HammerBlow()
@@ -262,11 +261,9 @@ class SurvivalScene(Scene):
 
     def reupdate(self):
         self.score_sign.update(self.context['dt'])
-        self.lives_sign.update(self.context['dt'])
 
     def redraw(self):
         self.score_sign.draw(self.context['screen'])
-        self.lives_sign.draw(self.context['screen'])
         self.context['player'].corns.draw(self.context['screen'])
 
     def refresh_holes(self):
@@ -299,7 +296,6 @@ class SurvivalScene(Scene):
         self.refresh_holes()
         self.refresh_player()
         self.score_sign.score = self.context['player'].score
-        self.lives_sign.score = self.context['player'].lives
 
     def generate_holes(self):
         for (x, lin) in enumerate(self.level_map):

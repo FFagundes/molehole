@@ -87,10 +87,10 @@ class GameObject(pygame.sprite.Sprite):
 class LifeCorns(GameObject):
 
     corns = 5
-    initial_corns = 5
     space = 32
 
     def __init__(self, image='corn.png', position=(5, 5)):
+        self.initial_corns = self.corns
         self.dead_image = os.path.join(images_dir, 'dead_corn.png')
         self.dead_image = pygame.image.load(self.dead_image)
 
@@ -110,29 +110,20 @@ class LifeCorns(GameObject):
 
 class Sign(GameObject):
 
-    def __init__(self, score, position=(175, 33), image='sign.png'):
+    def __init__(self, score, position=(280, 22), image='sign.png'):
         GameObject.__init__(self, image, position)
         font_path = os.path.join(fonts_dir, 'FreeSans.ttf')
         self.font = pygame.font.Font(font_path, 16)
-        self.label_position = (position[0] + 10, position[1] + 13)
+        self.label_position = (position[0] + 25, position[1] + 28)
         self.score = score
+        self.color = (100, 50, 0)
 
     def draw(self, screen):
         screen.blit(self.image, self.position)
         screen.blit(self.label, self.label_position)
 
     def update(self, dt):
-        self.label = self.font.render('Score: %s' %
-                                self.score, False, (100, 50, 0))
-
-
-class LivesSign(Sign):
-    def __init__(self, score, position=(360, 20), image='sign.png'):
-        Sign.__init__(self, score, position, image)
-
-    def update(self, dt):
-        self.label = self.font.render('Lifes: %s' %
-                                self.score, False, (100, 50, 0))
+        self.label = self.font.render('%s' % self.score, False, self.color)
 
 
 class Hole(GameObject):
