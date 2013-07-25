@@ -37,5 +37,5 @@ class CreditsButton(Button):
 
 class BackButton(Button):
 
-    def __init__(self, position=(300, 270), name='back', image='btn_credits.png'):
+    def __init__(self, position=(385, 260), name='back', image='btn_back.png'):
         Button.__init__(self, position, image, name)
