@@ -48,6 +48,19 @@ class HammerBlow(object):
         self.sounds[blow].play()
 
 
+class HighScore(object):
+
+    def __init__(self, high_score, position=(10, 295)):
+        self.score = str(high_score)
+        self.position = position
+        font_path = os.path.join(fonts_dir, 'FreeSans.ttf')
+        self.font = pygame.font.Font(font_path, 16)
+        self.label = self.font.render(self.score, False, (200, 200, 100))
+
+    def draw(self, screen):
+        screen.blit(self.label, self.position)
+
+
 class GameObject(pygame.sprite.Sprite):
 
     def __init__(self, image, position):
@@ -71,17 +84,28 @@ class GameObject(pygame.sprite.Sprite):
         self.rect.topleft = (pos[0], pos[1])
 
 
-class HighScore(object):
+class LifeCorns(GameObject):
 
-    def __init__(self, high_score, position=(10, 295)):
-        self.score = str(high_score)
-        self.position = position
-        font_path = os.path.join(fonts_dir, 'FreeSans.ttf')
-        self.font = pygame.font.Font(font_path, 16)
-        self.label = self.font.render(self.score, False, (200, 200, 100))
+    corns = 5
+    initial_corns = 5
+    space = 32
+
+    def __init__(self, image='corn.png', position=(5, 5)):
+        self.dead_image = os.path.join(images_dir, 'dead_corn.png')
+        self.dead_image = pygame.image.load(self.dead_image)
+
+        GameObject.__init__(self, image, position)
 
     def draw(self, screen):
-        screen.blit(self.label, self.position)
+        x = 0
+        for x in range(self.corns):
+            screen.blit(self.image,
+                    (self.position[0] + (self.space * x), self.position[1]))
+
+        for y in range(self.initial_corns - self.corns):
+            screen.blit(self.dead_image,
+                    (self.position[0] + (self.space * self.corns)
+                                            + (self.space * y), self.position[1]))
 
 
 class Sign(GameObject):
@@ -129,5 +153,17 @@ class Hole(GameObject):
 
 class Player(object):
 
-    lives = 5
     score = 0
+
+    def __init__(self):
+        self.corns = LifeCorns()
+
+    @property
+    def lives(self):
+        return self.corns.corns
+
+    def set_lives(self, value):
+        self.corns.corns = value
+
+    def loose_life(self):
+        self.corns.corns -= 1

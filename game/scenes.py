@@ -172,7 +172,7 @@ class EndScene(TimerScene):
         self.score = font.render(str(self.context['player'].score),
                                                 True, (255, 255, 255))
         self.align = (440 - (self.score.get_width()))
-        self.context['player'].lives = 5
+        self.context['player'].set_lives(5)
         self.get_score()
         self.high_score = HighScore(self.context['high_score'])
 
@@ -267,6 +267,7 @@ class SurvivalScene(Scene):
     def redraw(self):
         self.score_sign.draw(self.context['screen'])
         self.lives_sign.draw(self.context['screen'])
+        self.context['player'].corns.draw(self.context['screen'])
 
     def refresh_holes(self):
         for hole in self.active_holes:
@@ -280,7 +281,7 @@ class SurvivalScene(Scene):
         if killed:
             self.context['player'].score += mole.points
         else:
-            self.context['player'].lives -= 1
+            self.context['player'].loose_life()
             self.fail_sound.play()
 
         self.active_holes.append(mole.hole)
