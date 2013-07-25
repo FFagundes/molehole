@@ -206,15 +206,41 @@ class TitleScene(Scene):
         for button in self.actors_dict['buttons']:
             if button.check_click(pygame.mouse.get_pos()):
                 self.run = False
-                self.next_scene = SurvivalScene(self.context)
+                if button.name == 'start':
+                    self.next_scene = SurvivalScene(self.context)
+                if button.name == 'credits':
+                    self.next_scene = CreditsScene(self.context)
 
     def start(self):
-        start = Button((65, 140), 'btn_start.png')
+        start = Button((65, 140), 'btn_start.png', 'start')
+        credits = Button((200, 140), 'btn_start.png', 'credits')
         self.actors_dict['buttons'].add(start)
+        self.actors_dict['buttons'].add(credits)
         self.high_score = HighScore(self.context['high_score'])
 
     def redraw(self):
         self.high_score.draw(self.context['screen'])
+
+    def end(self):
+        self.context['music'] = 'play'
+
+
+class CreditsScene(Scene):
+
+    def __init__(self, context):
+        Scene.__init__(self, context)
+        self.background = Background("credits.png")
+        self.music = ('title_music.mp3', -1)
+
+    def mousebuttondown_event(self):
+        for button in self.actors_dict['buttons']:
+            if button.check_click(pygame.mouse.get_pos()):
+                self.run = False
+                self.next_scene = TitleScene(self.context)
+
+    def start(self):
+        start = Button((65, 140), 'btn_start.png', 'back')
+        self.actors_dict['buttons'].add(start)
 
     def end(self):
         self.context['music'] = 'play'

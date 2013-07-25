@@ -5,8 +5,9 @@ from utils import GameObject
 
 class Button(GameObject):
 
-    def __init__(self, position, image):
+    def __init__(self, position, image, name):
         GameObject.__init__(self, image, position)
+        self.name = name
 
     def _inside_x(self, x):
         return x >= self.position[0] and x <= self.position[0] + self.rect.width
