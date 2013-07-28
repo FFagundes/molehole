@@ -106,7 +106,7 @@ class Scene:
         elif self.context['music'] == 'off':
             mixer.music.stop()
 
-    def end():
+    def end(self):
         pass
 
     def play(self, clock):
@@ -144,7 +144,7 @@ class TheBugSplashScene(TimerScene):
     def __init__(self, context):
         TimerScene.__init__(self, context, 'bug_logo.png')
         self.next_scene = TitleScene(self.context)
-        self.music = ('title_music.mp3', -1)
+        self.music = ('intro.ogg', -1)
 
     def end(self):
         self.context['music'] = 'on'
@@ -154,7 +154,7 @@ class FatecSplashScene(TimerScene):
     def __init__(self, context):
         TimerScene.__init__(self, context, 'fatec_logo.png')
         self.next_scene = TheBugSplashScene(self.context)
-        self.music = ('title_music.mp3', -1)
+        self.music = ('intro.ogg', -1)
 
     def end(self):
         self.context['music'] = 'on'
@@ -200,7 +200,7 @@ class TitleScene(Scene):
     def __init__(self, context):
         Scene.__init__(self, context)
         self.background = Background('title_screen.png')
-        self.music = ('title_music.mp3', -1)
+        self.music = ('intro.ogg', -1)
 
     def mousebuttondown_event(self):
         for button in self.actors_dict['buttons']:
@@ -208,8 +208,10 @@ class TitleScene(Scene):
                 self.run = False
                 if button.name == 'start':
                     self.next_scene = SurvivalScene(self.context)
+                    self.context['music'] = 'play'
                 if button.name == 'credits':
                     self.next_scene = CreditsScene(self.context)
+                    self.context['music'] = 'on'
 
     def start(self):
         start = StartButton()
@@ -221,16 +223,13 @@ class TitleScene(Scene):
     def redraw(self):
         self.high_score.draw(self.context['screen'])
 
-    def end(self):
-        self.context['music'] = 'play'
-
 
 class CreditsScene(Scene):
 
     def __init__(self, context):
         Scene.__init__(self, context)
         self.background = Background("credits.png")
-        self.music = ('title_music.mp3', -1)
+        self.music = ('intro.ogg', -1)
 
     def mousebuttondown_event(self):
         for button in self.actors_dict['buttons']:
@@ -243,7 +242,7 @@ class CreditsScene(Scene):
         self.actors_dict['buttons'].add(start)
 
     def end(self):
-        self.context['music'] = 'play'
+        self.context['music'] = 'on'
 
 
 class SurvivalScene(Scene):
@@ -263,7 +262,7 @@ class SurvivalScene(Scene):
         self.context['player'] = Player()
         self.score_sign = Sign(self.context['player'].score)
         self.next_scene = EndScene(self.context)
-        self.music = ('wooly_bully.mp3', -1)
+        self.music = ('mole_hole.mp3', -1)
         self.blow = HammerBlow()
         self.miss_sound = mixer.Sound(os.path.join(sounds_dir, 'cancel.ogg'))
         self.fail_sound = mixer.Sound(os.path.join(sounds_dir, 'stare.ogg'))
