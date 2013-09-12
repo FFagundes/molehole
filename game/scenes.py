@@ -203,15 +203,17 @@ class TitleScene(Scene):
         self.music = ('intro.ogg', -1)
 
     def mousebuttondown_event(self):
-        for button in self.actors_dict['buttons']:
-            if button.check_click(pygame.mouse.get_pos()):
-                self.run = False
-                if button.name == 'start':
-                    self.next_scene = SurvivalScene(self.context)
-                    self.context['music'] = 'play'
-                if button.name == 'credits':
-                    self.next_scene = CreditsScene(self.context)
-                    self.context['music'] = 'on'
+        position = pygame.mouse.get_pos()
+        if position != (0, 0):
+            for button in self.actors_dict['buttons']:
+                if button.check_click(position):
+                    self.run = False
+                    if button.name == 'start':
+                        self.next_scene = SurvivalScene(self.context)
+                        self.context['music'] = 'play'
+                    if button.name == 'credits':
+                        self.next_scene = CreditsScene(self.context)
+                        self.context['music'] = 'on'
 
     def start(self):
         start = StartButton()
