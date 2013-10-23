@@ -42,5 +42,5 @@ class PlayButton(Button):
 
 class NextButton(Button):
 
-    def __init__(self, position=(385, 260), name='next', image='btn_tuto_next.png'):
+    def __init__(self, position=(395, 272), name='next', image='btn_tuto_next.png'):
         Button.__init__(self, position, image, name)

@@ -128,7 +128,7 @@ class Scene:
 
 
 class TimerScene(Scene):
-    timer = 120
+    timer = 60
 
     def __init__(self, context, background):
         Scene.__init__(self, context)
@@ -221,7 +221,8 @@ class TitleScene(Scene):
         credits = CreditsButton()
         self.actors_dict['buttons'].add(start)
         self.actors_dict['buttons'].add(credits)
-        self.high_score = HighScore(self.context['high_score'])
+        self.high_score = HighScore(high_score=self.context['high_score'],
+                                                size=22, position=(10, 287))
 
     def redraw(self):
         self.high_score.draw(self.context['screen'])

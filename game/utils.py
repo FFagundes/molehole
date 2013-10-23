@@ -50,12 +50,13 @@ class HammerBlow(object):
 
 class HighScore(object):
 
-    def __init__(self, high_score, position=(10, 295)):
+    def __init__(self, high_score, position=(10, 295), size=16):
         self.score = str(high_score)
+        self.size = size
         self.position = position
         font_path = os.path.join(fonts_dir, 'FreeSans.ttf')
-        self.font = pygame.font.Font(font_path, 16)
-        self.label = self.font.render(self.score, False, (200, 200, 100))
+        self.font = pygame.font.Font(font_path, self.size)
+        self.label = self.font.render(self.score, False, (200, 170, 50))
 
     def draw(self, screen):
         screen.blit(self.label, self.position)
