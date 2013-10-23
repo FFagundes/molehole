@@ -5,7 +5,7 @@ import os
 from random import randint
 
 from game.utils import Background, Sign, Hole, Player, HighScore, HammerBlow
-from game.moles import Mole, FemaleMole
+from game.moles import Mole, FemaleMole, CapMole, SpeedMole
 from game.buttons import StartButton, CreditsButton, BackButton
 from settings import fonts_dir, sounds_dir, project_dir
 
@@ -278,7 +278,9 @@ class SurvivalScene(Scene):
         hit = False
         for mole in self.actors_dict['moles']:
             if mole.coordenates == (y, x):
-                self.kill_mole(mole, True)
+                mole.lives -= 1
+                if not mole.lives:
+                    self.kill_mole(mole, True)
                 self.blow.play()
                 hit = True
                 break
@@ -351,7 +353,12 @@ class SurvivalScene(Scene):
             if self.unactive_holes:
                 hole_index = randint(0, len(self.unactive_holes) - 1)
                 hole = self.unactive_holes[hole_index]
-                if randint(0, 4):
+                rand = randint(0, 10)
+                if rand == 9:
+                    mole = CapMole(hole.position, hole.coordenates)
+                elif rand == 8:
+                    mole = SpeedMole(hole.position, hole.coordenates)
+                elif rand > 3:
                     mole = Mole(hole.position, hole.coordenates)
                 else:
                     mole = FemaleMole(hole.position, hole.coordenates)
@@ -364,7 +371,7 @@ class SurvivalScene(Scene):
             self.run = False
 
     def start(self):
-        self.difficulty = 10
+        self.difficulty = 25
         self.unactive_holes = []
         self.active_holes = []
         self.actors_dict['holes'] = pygame.sprite.RenderPlain()

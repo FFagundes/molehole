@@ -1,7 +1,7 @@
 # Encoding: UTF-8
 
 import pygame
-from game.scenes import FatecSplashScene
+from game.scenes import FatecSplashScene, TitleScene
 
 try:
     import android
@@ -47,7 +47,8 @@ class Game(object):
                     'screen': self.screen,
                     'music': 'play',
                     'high_score': self.get_high_score()}
-        scene = FatecSplashScene(context)
+        scene = TitleScene(context)
+        # scene = FatecSplashScene(context)
 
         while scene:
             scene = scene.play(clock)

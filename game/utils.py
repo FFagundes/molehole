@@ -63,12 +63,19 @@ class HighScore(object):
 
 class GameObject(pygame.sprite.Sprite):
 
-    def __init__(self, image, position):
+    frame = 0
+
+    def __init__(self, image_set, position):
         pygame.sprite.Sprite.__init__(self)
-        self.image = image
-        if isinstance(self.image, str):
-            self.image = os.path.join(images_dir, self.image)
-            self.image = pygame.image.load(self.image)
+        if isinstance(image_set, list):
+            self.image_set = image_set
+        else:
+            self.image_set = [image_set]
+
+        for counter, image in enumerate(self.image_set):
+            if isinstance(image, str):
+                image = os.path.join(images_dir, image)
+                self.image_set[counter] = pygame.image.load(image)
 
         self.position = position
         self.rect = self.image.get_rect()
@@ -82,6 +89,10 @@ class GameObject(pygame.sprite.Sprite):
 
     def set_pos(self, pos):
         self.rect.topleft = (pos[0], pos[1])
+
+    @property
+    def image(self):
+        return self.image_set[self.frame]
 
 
 class LifeCorns(GameObject):
