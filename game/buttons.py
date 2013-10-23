@@ -32,3 +32,15 @@ class BackButton(Button):
 
     def __init__(self, position=(385, 260), name='back', image='btn_back.png'):
         Button.__init__(self, position, image, name)
+
+
+class PlayButton(Button):
+
+    def __init__(self, position=(0, 222), name='play', image='btn_tuto_start.png'):
+        Button.__init__(self, position, image, name)
+
+
+class NextButton(Button):
+
+    def __init__(self, position=(385, 260), name='next', image='btn_tuto_next.png'):
+        Button.__init__(self, position, image, name)

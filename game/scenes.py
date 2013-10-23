@@ -6,7 +6,7 @@ from random import randint
 
 from game.utils import Background, Sign, Hole, Player, HighScore, HammerBlow
 from game.moles import Mole, FemaleMole, CapMole, SpeedMole
-from game.buttons import StartButton, CreditsButton, BackButton
+from game.buttons import StartButton, CreditsButton, BackButton, PlayButton, NextButton
 from settings import fonts_dir, sounds_dir, project_dir
 
 try:
@@ -95,16 +95,17 @@ class Scene:
         pass
 
     def set_music(self):
-        if self.music[0] and self.context['music'] == 'play':
+        if self.music and self.context['music'] == 'play':
             path = os.path.join(sounds_dir, self.music[0])
             mixer.music.load(path)
 
     def handle_music(self):
-        if self.context['music'] == 'play':
-            mixer.music.stop()
-            mixer.music.play(self.music[1])
-        elif self.context['music'] == 'off':
-            mixer.music.stop()
+        if self.music:
+            if self.context['music'] == 'play':
+                mixer.music.stop()
+                mixer.music.play(self.music[1])
+            elif self.context['music'] == 'off':
+                mixer.music.stop()
 
     def end(self):
         pass
@@ -209,7 +210,7 @@ class TitleScene(Scene):
                 if button.check_click(position):
                     self.run = False
                     if button.name == 'start':
-                        self.next_scene = SurvivalScene(self.context)
+                        self.next_scene = TutorialScene1(self.context)
                         self.context['music'] = 'play'
                     if button.name == 'credits':
                         self.next_scene = CreditsScene(self.context)
@@ -224,6 +225,77 @@ class TitleScene(Scene):
 
     def redraw(self):
         self.high_score.draw(self.context['screen'])
+
+
+class TutorialScene1(Scene):
+
+    def __init__(self, context):
+        Scene.__init__(self, context)
+        self.background = Background('mole_hole_tuto_1.png')
+
+    def mousebuttondown_event(self):
+        position = pygame.mouse.get_pos()
+        if position != (0, 0):
+            for button in self.actors_dict['buttons']:
+                if button.check_click(position):
+                    self.run = False
+                    if button.name == 'play':
+                        self.next_scene = SurvivalScene(self.context)
+                        self.context['music'] = 'play'
+                    if button.name == 'next':
+                        self.next_scene = TutorialScene2(self.context)
+
+    def start(self):
+        play = PlayButton()
+        next = NextButton()
+        self.actors_dict['buttons'].add(play)
+        self.actors_dict['buttons'].add(next)
+
+
+class TutorialScene2(Scene):
+
+    def __init__(self, context):
+        Scene.__init__(self, context)
+        self.background = Background('mole_hole_tuto_2.png')
+
+    def mousebuttondown_event(self):
+        position = pygame.mouse.get_pos()
+        if position != (0, 0):
+            for button in self.actors_dict['buttons']:
+                if button.check_click(position):
+                    self.run = False
+                    if button.name == 'play':
+                        self.next_scene = SurvivalScene(self.context)
+                        self.context['music'] = 'play'
+                    if button.name == 'next':
+                        self.next_scene = TutorialScene3(self.context)
+
+    def start(self):
+        play = PlayButton()
+        next = NextButton()
+        self.actors_dict['buttons'].add(play)
+        self.actors_dict['buttons'].add(next)
+
+
+class TutorialScene3(Scene):
+
+    def __init__(self, context):
+        Scene.__init__(self, context)
+        self.background = Background('mole_hole_tuto_3.png')
+
+    def mousebuttondown_event(self):
+        position = pygame.mouse.get_pos()
+        if position != (0, 0):
+            for button in self.actors_dict['buttons']:
+                if button.check_click(position):
+                    self.run = False
+                    if button.name == 'play':
+                        self.next_scene = SurvivalScene(self.context)
+                        self.context['music'] = 'play'
+
+    def start(self):
+        play = PlayButton(image='btn_tuto_start_final.png')
+        self.actors_dict['buttons'].add(play)
 
 
 class CreditsScene(Scene):
