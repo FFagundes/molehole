@@ -324,6 +324,7 @@ class SurvivalScene(Scene):
     hole_height = 73
     left_margin = 13
     top_margin = 96
+    difficulty = 20
     level_map = [
                     [1, 1, 1, 1, 1],
                     [1, 1, 1, 1, 1],
@@ -376,9 +377,9 @@ class SurvivalScene(Scene):
                 hole.refresh_counter = 24
 
     def improve_difficulty(self):
-        condition = not self.context['player'].score % 100 \
-                    and self.difficulty > 3 \
-                    and self.context['player'].score
+        condition = not self.context['player'].score % 20 \
+                    and self.context['player'].score \
+                    and self.difficulty > 3
         if condition:
             self.difficulty -= 1
 
@@ -445,7 +446,6 @@ class SurvivalScene(Scene):
             self.run = False
 
     def start(self):
-        self.difficulty = 25
         self.unactive_holes = []
         self.active_holes = []
         self.actors_dict['holes'] = pygame.sprite.RenderPlain()
