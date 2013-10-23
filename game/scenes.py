@@ -128,7 +128,7 @@ class Scene:
 
 
 class TimerScene(Scene):
-    timer = 60
+    timer = 40
 
     def __init__(self, context, background):
         Scene.__init__(self, context)
@@ -140,15 +140,15 @@ class TimerScene(Scene):
 
         self.timer -= 1
 
+    def end(self):
+        self.context['music'] = 'on'
+
 
 class TheBugSplashScene(TimerScene):
     def __init__(self, context):
         TimerScene.__init__(self, context, 'bug_logo.png')
         self.next_scene = TitleScene(self.context)
         self.music = ('intro.ogg', -1)
-
-    def end(self):
-        self.context['music'] = 'on'
 
 
 class FatecSplashScene(TimerScene):
@@ -157,8 +157,14 @@ class FatecSplashScene(TimerScene):
         self.next_scene = TheBugSplashScene(self.context)
         self.music = ('intro.ogg', -1)
 
-    def end(self):
-        self.context['music'] = 'on'
+
+class PygameSplashScene(TimerScene):
+    timer = 100
+
+    def __init__(self, context):
+        TimerScene.__init__(self, context, 'pygame-presplash.jpg')
+        self.next_scene = FatecSplashScene(self.context)
+        self.music = ('intro.ogg', -1)
 
 
 class EndScene(TimerScene):
