@@ -278,9 +278,9 @@ class SurvivalScene(Scene):
         hit = False
         for mole in self.actors_dict['moles']:
             if mole.coordenates == (y, x):
-                mole.lives -= 1
+                mole.loose_life()
                 if not mole.lives:
-                    self.kill_mole(mole, True)
+                    self.kill_mole(mole)
                 self.blow.play()
                 hit = True
                 break
@@ -310,22 +310,24 @@ class SurvivalScene(Scene):
         if condition:
             self.difficulty -= 1
 
-    def kill_mole(self, mole, killed=False):
-        if killed:
-            self.context['player'].score += mole.points
-            self.improve_difficulty()
-        else:
-            self.context['player'].loose_life()
-            self.fail_sound.play()
+    def kill_mole(self, mole):
+        self.context['player'].score += mole.points
+        self.improve_difficulty()
+        mole.killed = True
 
+    def remove_mole(self, mole):
         self.active_holes.append(mole.hole)
         mole.hole.active = True
         mole.kill()
 
     def refresh_moles(self):
         for mole in self.actors_dict['moles']:
-            if not mole.alive:
-                self.kill_mole(mole)
+            if mole.escaped:
+                self.context['player'].loose_life()
+                self.fail_sound.play()
+                self.remove_mole(mole)
+            elif mole.killed and mole.die():
+                self.remove_mole(mole)
 
     def loop(self):
         self.create_moles()
