@@ -1,8 +1,8 @@
 # Encoding: UTF-8
 
 import pygame
-from game.scenes import PygameSplashScene
-
+from game.scenes import PygameSplashScene, TitleScene
+from settings import debug
 try:
     import android
 except ImportError:
@@ -47,7 +47,10 @@ class Game(object):
                     'screen': self.screen,
                     'music': 'play',
                     'high_score': self.get_high_score()}
-        scene = PygameSplashScene(context)
+        if debug:
+            scene = TitleScene(context)
+        else:
+            scene = PygameSplashScene(context)
 
         while scene:
             scene = scene.play(clock)
