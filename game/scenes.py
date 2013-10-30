@@ -172,6 +172,8 @@ class PygameSplashScene(TimerScene):
 
 
 class EndScene(TimerScene):
+    timer = 120
+
     def __init__(self, context):
         TimerScene.__init__(self, context, 'end_game.png')
         self.next_scene = TitleScene(self.context)

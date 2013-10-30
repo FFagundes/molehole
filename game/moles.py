@@ -7,7 +7,7 @@ class Mole(GameObject):
 
     coordenates = (0, 0)
     alive_timer = 50
-    dead_time = 5
+    dead_time = dead_counter = 5
     killed = False
     escaped = False
     points = 1
@@ -20,7 +20,7 @@ class Mole(GameObject):
     def update(self, dt):
         self.alive_timer -= 1
 
-        if not self.alive_timer:
+        if not self.alive_timer and self.dead_time == self.dead_counter:
             self.escaped = True
 
     def loose_life(self):
@@ -28,8 +28,8 @@ class Mole(GameObject):
 
     def die(self):
         self.frame = -1
-        self.dead_time -= 1
-        if not self.dead_time:
+        self.dead_counter -= 1
+        if not self.dead_counter:
             return True
 
 
