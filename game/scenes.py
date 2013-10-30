@@ -236,86 +236,48 @@ class TitleScene(Scene):
         self.high_score.draw(self.context['screen'])
 
 
-# class TutorialScene(Scene):
-
-#     def __init__(self, context):
-#         Scene.__init__(self, context)
-#         self.backgrounds = ['mole_hole_tuto_1.png',
-#                             'mole_hole_tuto_2.png',
-#                             'mole_hole_tuto_3.png']
-
-#     def mousebuttondown_event(self):
-#         position = pygame.mouse.get_pos()
-#         if position != (0, 0):
-#             for button in self.actors_dict['buttons']:
-#                 if button.check_click(position):
-#                     self.run = False
-#                     if button.name == 'play':
-#                         self.next_scene = SurvivalScene(self.context)
-#                         self.context['music'] = 'play'
-#                     if button.name == 'next':
-#                         self.next_scene = TutorialScene2(self.context)
-
-
-class TutorialScene1(Scene):
-
+class TutorialScene(Scene):
     def __init__(self, context):
         Scene.__init__(self, context)
+
+    def mousebuttondown_event(self, position):
+        for button in self.actors_dict['buttons']:
+            if button.check_click(position):
+                self.run = False
+                if button.name == 'play':
+                    self.next_scene = SurvivalScene(self.context)
+                    self.context['music'] = 'play'
+                if button.name == 'next':
+                    pass
+
+    def start(self):
+        play = PlayButton()
+        next = NextButton()
+        self.actors_dict['buttons'].add(play)
+        self.actors_dict['buttons'].add(next)
+
+
+class TutorialScene1(TutorialScene):
+
+    def __init__(self, context):
+        TutorialScene.__init__(self, context)
         self.background = Background('mole_hole_tuto_1.png')
-
-    def mousebuttondown_event(self, position):
-        for button in self.actors_dict['buttons']:
-            if button.check_click(position):
-                self.run = False
-                if button.name == 'play':
-                    self.next_scene = SurvivalScene(self.context)
-                    self.context['music'] = 'play'
-                if button.name == 'next':
-                    self.next_scene = TutorialScene2(self.context)
-
-    def start(self):
-        play = PlayButton()
-        next = NextButton()
-        self.actors_dict['buttons'].add(play)
-        self.actors_dict['buttons'].add(next)
+        self.next_scene = TutorialScene2(context)
 
 
-class TutorialScene2(Scene):
+class TutorialScene2(TutorialScene):
 
     def __init__(self, context):
-        Scene.__init__(self, context)
+        TutorialScene.__init__(self, context)
         self.background = Background('mole_hole_tuto_2.png')
-
-    def mousebuttondown_event(self, position):
-        for button in self.actors_dict['buttons']:
-            if button.check_click(position):
-                self.run = False
-                if button.name == 'play':
-                    self.next_scene = SurvivalScene(self.context)
-                    self.context['music'] = 'play'
-                if button.name == 'next':
-                    self.next_scene = TutorialScene3(self.context)
-
-    def start(self):
-        play = PlayButton()
-        next = NextButton()
-        self.actors_dict['buttons'].add(play)
-        self.actors_dict['buttons'].add(next)
+        self.next_scene = TutorialScene3(context)
 
 
-class TutorialScene3(Scene):
+class TutorialScene3(TutorialScene):
 
     def __init__(self, context):
-        Scene.__init__(self, context)
+        TutorialScene.__init__(self, context)
         self.background = Background('mole_hole_tuto_3.png')
-
-    def mousebuttondown_event(self, position):
-        for button in self.actors_dict['buttons']:
-            if button.check_click(position):
-                self.run = False
-                if button.name == 'play':
-                    self.next_scene = SurvivalScene(self.context)
-                    self.context['music'] = 'play'
 
     def start(self):
         play = PlayButton(image='btn_tuto_start_final.png')
