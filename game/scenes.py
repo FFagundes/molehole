@@ -40,10 +40,10 @@ class Scene:
     def mousemotion_event(self):
         pass
 
-    def mousebuttonup_event(self):
+    def mousebuttonup_event(self, position):
         pass
 
-    def mousebuttondown_event(self):
+    def mousebuttondown_event(self, position):
         pass
 
     def handle_events(self, event):
@@ -61,9 +61,13 @@ class Scene:
             elif event.type == pygame.MOUSEMOTION:
                 self.mousemotion_event()
             elif event.type == pygame.MOUSEBUTTONUP:
-                self.mousebuttonup_event()
+                position = pygame.mouse.get_pos()
+                if position != (0, 0):
+                    self.mousebuttonup_event(position)
             elif event.type == pygame.MOUSEBUTTONDOWN:
-                self.mousebuttondown_event()
+                position = pygame.mouse.get_pos()
+                if position != (0, 0):
+                    self.mousebuttondown_event(position)
             else:
                 self.handle_events(event)
 
@@ -209,18 +213,16 @@ class TitleScene(Scene):
         self.background = Background('title_screen.png')
         self.music = ('intro.ogg', -1)
 
-    def mousebuttondown_event(self):
-        position = pygame.mouse.get_pos()
-        if position != (0, 0):
-            for button in self.actors_dict['buttons']:
-                if button.check_click(position):
-                    self.run = False
-                    if button.name == 'start':
-                        self.next_scene = TutorialScene1(self.context)
-                        self.context['music'] = 'play'
-                    if button.name == 'credits':
-                        self.next_scene = CreditsScene(self.context)
-                        self.context['music'] = 'on'
+    def mousebuttondown_event(self, position):
+        for button in self.actors_dict['buttons']:
+            if button.check_click(position):
+                self.run = False
+                if button.name == 'start':
+                    self.next_scene = TutorialScene1(self.context)
+                    self.context['music'] = 'play'
+                if button.name == 'credits':
+                    self.next_scene = CreditsScene(self.context)
+                    self.context['music'] = 'on'
 
     def start(self):
         start = StartButton()
@@ -234,23 +236,42 @@ class TitleScene(Scene):
         self.high_score.draw(self.context['screen'])
 
 
+# class TutorialScene(Scene):
+
+#     def __init__(self, context):
+#         Scene.__init__(self, context)
+#         self.backgrounds = ['mole_hole_tuto_1.png',
+#                             'mole_hole_tuto_2.png',
+#                             'mole_hole_tuto_3.png']
+
+#     def mousebuttondown_event(self):
+#         position = pygame.mouse.get_pos()
+#         if position != (0, 0):
+#             for button in self.actors_dict['buttons']:
+#                 if button.check_click(position):
+#                     self.run = False
+#                     if button.name == 'play':
+#                         self.next_scene = SurvivalScene(self.context)
+#                         self.context['music'] = 'play'
+#                     if button.name == 'next':
+#                         self.next_scene = TutorialScene2(self.context)
+
+
 class TutorialScene1(Scene):
 
     def __init__(self, context):
         Scene.__init__(self, context)
         self.background = Background('mole_hole_tuto_1.png')
 
-    def mousebuttondown_event(self):
-        position = pygame.mouse.get_pos()
-        if position != (0, 0):
-            for button in self.actors_dict['buttons']:
-                if button.check_click(position):
-                    self.run = False
-                    if button.name == 'play':
-                        self.next_scene = SurvivalScene(self.context)
-                        self.context['music'] = 'play'
-                    if button.name == 'next':
-                        self.next_scene = TutorialScene2(self.context)
+    def mousebuttondown_event(self, position):
+        for button in self.actors_dict['buttons']:
+            if button.check_click(position):
+                self.run = False
+                if button.name == 'play':
+                    self.next_scene = SurvivalScene(self.context)
+                    self.context['music'] = 'play'
+                if button.name == 'next':
+                    self.next_scene = TutorialScene2(self.context)
 
     def start(self):
         play = PlayButton()
@@ -265,17 +286,15 @@ class TutorialScene2(Scene):
         Scene.__init__(self, context)
         self.background = Background('mole_hole_tuto_2.png')
 
-    def mousebuttondown_event(self):
-        position = pygame.mouse.get_pos()
-        if position != (0, 0):
-            for button in self.actors_dict['buttons']:
-                if button.check_click(position):
-                    self.run = False
-                    if button.name == 'play':
-                        self.next_scene = SurvivalScene(self.context)
-                        self.context['music'] = 'play'
-                    if button.name == 'next':
-                        self.next_scene = TutorialScene3(self.context)
+    def mousebuttondown_event(self, position):
+        for button in self.actors_dict['buttons']:
+            if button.check_click(position):
+                self.run = False
+                if button.name == 'play':
+                    self.next_scene = SurvivalScene(self.context)
+                    self.context['music'] = 'play'
+                if button.name == 'next':
+                    self.next_scene = TutorialScene3(self.context)
 
     def start(self):
         play = PlayButton()
@@ -290,15 +309,13 @@ class TutorialScene3(Scene):
         Scene.__init__(self, context)
         self.background = Background('mole_hole_tuto_3.png')
 
-    def mousebuttondown_event(self):
-        position = pygame.mouse.get_pos()
-        if position != (0, 0):
-            for button in self.actors_dict['buttons']:
-                if button.check_click(position):
-                    self.run = False
-                    if button.name == 'play':
-                        self.next_scene = SurvivalScene(self.context)
-                        self.context['music'] = 'play'
+    def mousebuttondown_event(self, position):
+        for button in self.actors_dict['buttons']:
+            if button.check_click(position):
+                self.run = False
+                if button.name == 'play':
+                    self.next_scene = SurvivalScene(self.context)
+                    self.context['music'] = 'play'
 
     def start(self):
         play = PlayButton(image='btn_tuto_start_final.png')
@@ -312,9 +329,9 @@ class CreditsScene(Scene):
         self.background = Background("credits.png")
         self.music = ('intro.ogg', -1)
 
-    def mousebuttondown_event(self):
+    def mousebuttondown_event(self, position):
         for button in self.actors_dict['buttons']:
-            if button.check_click(pygame.mouse.get_pos()):
+            if button.check_click(position):
                 self.run = False
                 self.next_scene = TitleScene(self.context)
 
@@ -349,8 +366,7 @@ class SurvivalScene(Scene):
         self.miss_sound = mixer.Sound(os.path.join(sounds_dir, 'cancel.ogg'))
         self.fail_sound = mixer.Sound(os.path.join(sounds_dir, 'stare.ogg'))
 
-    def mousebuttondown_event(self):
-        x, y = pygame.mouse.get_pos()
+    def mousebuttondown_event(self, (x, y)):
 
         y = (y - self.top_margin) / self.hole_height
         x = (x - self.left_margin) / self.hole_width
