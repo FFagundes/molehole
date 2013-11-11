@@ -11,6 +11,11 @@ from settings import fonts_dir, sounds_dir, project_dir
 from collections import OrderedDict
 
 try:
+    import android
+except ImportError:
+    android = None
+
+try:
     import pygame.mixer as mixer
 except ImportError:
     import android.mixer as mixer
@@ -29,47 +34,51 @@ class Scene:
         self.actors_dict['buttons'] = pygame.sprite.RenderPlain()
         self.context = context
 
-    def quit_event(self):
+    def quit_event(self, event):
         self.run = False
         self.next_scene = None
 
-    def keydown_event(self):
+    def keydown_event(self, event):
+        if event.key == pygame.K_ESCAPE:
+            self.quit_event(event)
+
+    def keyup_event(self, event):
         pass
 
-    def keyup_event(self):
+    def mousemotion_event(self, event):
         pass
 
-    def mousemotion_event(self):
+    def mousebuttonup_event(self, event, position):
         pass
 
-    def mousebuttonup_event(self, position):
-        pass
-
-    def mousebuttondown_event(self, position):
+    def mousebuttondown_event(self, event, position):
         pass
 
     def handle_events(self, event):
         pass
 
     def check_events(self):
+        if android:
+            if android.check_pause():
+                android.wait_for_resume()
+
         for event in pygame.event.get():
             if event.type == pygame.QUIT:
-                self.quit_event()
+                self.quit_event(event)
             elif event.type == pygame.KEYDOWN:
-                self.quit_event()
-                self.keydown_event()
+                self.keydown_event(event)
             elif event.type == pygame.KEYUP:
-                self.keyup_event()
+                self.keyup_event(event)
             elif event.type == pygame.MOUSEMOTION:
-                self.mousemotion_event()
+                self.mousemotion_event(event)
             elif event.type == pygame.MOUSEBUTTONUP:
                 position = pygame.mouse.get_pos()
                 if position != (0, 0):
-                    self.mousebuttonup_event(position)
+                    self.mousebuttonup_event(event, position)
             elif event.type == pygame.MOUSEBUTTONDOWN:
                 position = pygame.mouse.get_pos()
                 if position != (0, 0):
-                    self.mousebuttondown_event(position)
+                    self.mousebuttondown_event(event, position)
             else:
                 self.handle_events(event)
 
@@ -217,7 +226,7 @@ class TitleScene(Scene):
         self.background = Background('title_screen.png')
         self.music = ('intro.ogg', -1)
 
-    def mousebuttondown_event(self, position):
+    def mousebuttondown_event(self, event, position):
         for button in self.actors_dict['buttons']:
             if button.check_click(position):
                 self.run = False
@@ -244,7 +253,7 @@ class TutorialScene(Scene):
     def __init__(self, context):
         Scene.__init__(self, context)
 
-    def mousebuttondown_event(self, position):
+    def mousebuttondown_event(self, event, position):
         for button in self.actors_dict['buttons']:
             if button.check_click(position):
                 self.run = False
@@ -295,7 +304,7 @@ class CreditsScene(Scene):
         self.background = Background("credits.png")
         self.music = ('intro.ogg', -1)
 
-    def mousebuttondown_event(self, position):
+    def mousebuttondown_event(self, event, position):
         for button in self.actors_dict['buttons']:
             if button.check_click(position):
                 self.run = False
@@ -332,7 +341,7 @@ class SurvivalScene(Scene):
         self.miss_sound = mixer.Sound(os.path.join(sounds_dir, 'cancel.ogg'))
         self.fail_sound = mixer.Sound(os.path.join(sounds_dir, 'stare.ogg'))
 
-    def mousebuttondown_event(self, (x, y)):
+    def mousebuttondown_event(self, event, (x, y)):
         cord_y = (y - self.top_margin) / self.hole_height
         cord_x = (x - self.left_margin) / self.hole_width
         hit = False

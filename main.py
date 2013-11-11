@@ -2,11 +2,17 @@
 
 import pygame
 from game.scenes import PygameSplashScene, TitleScene
-from settings import debug
 try:
     import android
+    debug = False
 except ImportError:
     android = None
+    debug = True
+
+try:
+    from dev_settings import debug
+except ImportError:
+    pass
 
 
 class Game(object):
