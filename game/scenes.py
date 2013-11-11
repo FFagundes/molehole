@@ -4,10 +4,11 @@ import pygame
 import os
 from random import randint
 
-from game.utils import Background, Sign, Hole, Player, HighScore, HammerBlow
+from game.utils import Background, Sign, Hole, Player, HighScore, HammerSound, HammerBlow
 from game.moles import Mole, FemaleMole, CapMole, SpeedMole
 from game.buttons import StartButton, CreditsButton, BackButton, PlayButton, NextButton
 from settings import fonts_dir, sounds_dir, project_dir
+from collections import OrderedDict
 
 try:
     import pygame.mixer as mixer
@@ -24,7 +25,8 @@ class Scene:
     music = None
 
     def __init__(self, context):
-        self.actors_dict = {"buttons": pygame.sprite.RenderPlain()}
+        self.actors_dict = OrderedDict()
+        self.actors_dict['buttons'] = pygame.sprite.RenderPlain()
         self.context = context
 
     def quit_event(self):
@@ -326,23 +328,23 @@ class SurvivalScene(Scene):
         self.score_sign = Sign(self.context['player'].score)
         self.next_scene = EndScene(self.context)
         self.music = ('mole_hole.mp3', -1)
-        self.blow = HammerBlow()
+        self.blow = HammerSound()
         self.miss_sound = mixer.Sound(os.path.join(sounds_dir, 'cancel.ogg'))
         self.fail_sound = mixer.Sound(os.path.join(sounds_dir, 'stare.ogg'))
 
     def mousebuttondown_event(self, (x, y)):
-
-        y = (y - self.top_margin) / self.hole_height
-        x = (x - self.left_margin) / self.hole_width
-
+        cord_y = (y - self.top_margin) / self.hole_height
+        cord_x = (x - self.left_margin) / self.hole_width
         hit = False
         for mole in self.actors_dict['moles']:
-            if mole.coordenates == (y, x):
+            if mole.coordenates == (cord_y, cord_x):
                 mole.loose_life()
                 if not mole.lives:
                     self.kill_mole(mole)
                 self.blow.play()
                 hit = True
+                blow = HammerBlow((x - 25, y - 40))
+                self.actors_dict['blows'].add(blow)
                 break
 
         if not hit:
@@ -437,6 +439,7 @@ class SurvivalScene(Scene):
         self.active_holes = []
         self.actors_dict['holes'] = pygame.sprite.RenderPlain()
         self.actors_dict['moles'] = pygame.sprite.RenderPlain()
+        self.actors_dict['blows'] = pygame.sprite.RenderPlain()
         self.generate_holes()
 
     def end(self):

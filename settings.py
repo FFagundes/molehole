@@ -6,4 +6,4 @@ fonts_dir = os.path.join(project_dir, "fonts")
 sounds_dir = os.path.join(project_dir, "sounds")
 score_path = os.path.join(project_dir, "score.txt")
 
-debug = False
+debug = True

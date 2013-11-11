@@ -33,7 +33,7 @@ class Background(object):
         screen.blit(self.image, (0, 0))
 
 
-class HammerBlow(object):
+class HammerSound(object):
     sounds = []
 
     def __init__(self):
@@ -94,6 +94,18 @@ class GameObject(pygame.sprite.Sprite):
     @property
     def image(self):
         return self.image_set[self.frame]
+
+
+class HammerBlow(GameObject):
+    backgrounds = ['blow1', 'blow2', 'blow3']
+
+    def __init__(self, position, image=['blow1.png', 'blow2.png', 'blow3.png']):
+        GameObject.__init__(self, image, position)
+
+    def update(self, dt):
+        self.frame += 1
+        if self.frame >= len(self.backgrounds):
+            self.kill()
 
 
 class LifeCorns(GameObject):
