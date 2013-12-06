@@ -5,9 +5,9 @@ import os
 from random import randint
 
 from game.utils import Background, Sign, Hole, Player, HighScore, HammerSound, HammerBlow
-from game.moles import Mole, FemaleMole, CapMole, SpeedMole
+from game.animals import Mole, FemaleMole, CapMole, SpeedMole, Rabbit
 from game.buttons import StartButton, CreditsButton, BackButton, PlayButton, NextButton
-from settings import fonts_dir, sounds_dir, project_dir
+from settings import fonts_dir, sounds_dir, project_dir, frame_rate
 from collections import OrderedDict
 
 try:
@@ -372,7 +372,7 @@ class SurvivalScene(Scene):
                 self.unactive_holes.append(hole)
                 self.active_holes.remove(hole)
                 hole.active = False
-                hole.refresh_counter = 24
+                hole.refresh_counter = frame_rate
 
     def improve_difficulty(self):
         condition = not self.context['player'].score % 20 \
@@ -386,23 +386,29 @@ class SurvivalScene(Scene):
         self.improve_difficulty()
         mole.killed = True
 
-    def remove_mole(self, mole):
-        self.active_holes.append(mole.hole)
-        mole.hole.active = True
-        mole.kill()
+    def remove_animal(self, animal):
+        self.active_holes.append(animal.hole)
+        animal.hole.active = True
+        animal.kill()
 
-    def refresh_moles(self):
+    def refresh_animals(self):
         for mole in self.actors_dict['moles']:
             if mole.escaped:
                 self.context['player'].loose_life()
                 self.fail_sound.play()
-                self.remove_mole(mole)
+                self.remove_animal(mole)
             elif mole.killed and mole.die():
-                self.remove_mole(mole)
+                self.remove_animal(mole)
 
+        for rabbit in self.actors_dict['rabbits']:
+            if rabbit.escaped:
+                self.remove_animal(rabbit)
+            elif rabbit.killed and rabbit.die():
+                self.fail_sound.play()
+                self.context['player'].loose_life()
     def loop(self):
-        self.create_moles()
-        self.refresh_moles()
+        self.create_animals()
+        self.refresh_animals()
         self.refresh_holes()
         self.refresh_player()
         self.score_sign.score = self.context['player'].score
@@ -421,22 +427,27 @@ class SurvivalScene(Scene):
                     self.actors_dict['holes'].add(hole)
                     self.unactive_holes.append(hole)
 
-    def create_moles(self):
+    def create_animals(self):
         if not randint(0, self.difficulty):
             if self.unactive_holes:
                 hole_index = randint(0, len(self.unactive_holes) - 1)
                 hole = self.unactive_holes[hole_index]
                 rand = randint(0, 10)
                 if rand == 9:
-                    mole = CapMole(hole.position, hole.coordenates)
-                elif rand == 8:
-                    mole = SpeedMole(hole.position, hole.coordenates)
-                elif rand > 3:
-                    mole = Mole(hole.position, hole.coordenates)
+                    animal = Rabbit(hole.position, hole.coordenates)
+                    self.actors_dict['rabbits'].add(animal)
                 else:
-                    mole = FemaleMole(hole.position, hole.coordenates)
-                self.actors_dict['moles'].add(mole)
-                mole.hole = hole
+                    if rand == 8:
+                        animal = SpeedMole(hole.position, hole.coordenates)
+                    elif rand == 7:
+                        animal = CapMole(hole.position, hole.coordenates)
+                    elif rand > 3:
+                        animal = Mole(hole.position, hole.coordenates)
+                    else:
+                        animal = FemaleMole(hole.position, hole.coordenates)
+                    self.actors_dict['moles'].add(animal)
+
+                animal.hole = hole
                 self.unactive_holes.remove(hole)
 
     def refresh_player(self):
@@ -448,6 +459,7 @@ class SurvivalScene(Scene):
         self.active_holes = []
         self.actors_dict['holes'] = pygame.sprite.RenderPlain()
         self.actors_dict['moles'] = pygame.sprite.RenderPlain()
+        self.actors_dict['rabbits'] = pygame.sprite.RenderPlain()
         self.actors_dict['blows'] = pygame.sprite.RenderPlain()
         self.generate_holes()
 
