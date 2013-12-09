@@ -345,16 +345,18 @@ class SurvivalScene(Scene):
         cord_y = (y - self.top_margin) / self.hole_height
         cord_x = (x - self.left_margin) / self.hole_width
         hit = False
-        for mole in self.actors_dict['moles']:
-            if mole.coordenates == (cord_y, cord_x):
-                mole.loose_life()
-                if not mole.lives:
-                    self.kill_mole(mole)
-                self.blow.play()
-                hit = True
-                blow = HammerBlow((x - 25, y - 40))
-                self.actors_dict['blows'].add(blow)
-                break
+
+        for index in self.animals_index:
+            for animal in self.actors_dict[index]:
+                if animal.coordenates == (cord_y, cord_x):
+                    animal.loose_life()
+                    if not animal.lives:
+                        self.kill_animal(animal)
+                    self.blow.play()
+                    hit = True
+                    blow = HammerBlow((x - 25, y - 40))
+                    self.actors_dict['blows'].add(blow)
+                    break
 
         if not hit:
             self.miss_sound.play()
@@ -381,10 +383,13 @@ class SurvivalScene(Scene):
         if condition:
             self.difficulty -= 1
 
-    def kill_mole(self, mole):
-        self.context['player'].score += mole.points
-        self.improve_difficulty()
-        mole.killed = True
+    def kill_animal(self, animal):
+        if issubclass(type(animal), Mole):
+            self.context['player'].score += animal.points
+            self.improve_difficulty()
+        else:
+            self.context['player'].loose_life()
+        animal.killed = True
 
     def remove_animal(self, animal):
         self.active_holes.append(animal.hole)
@@ -401,11 +406,9 @@ class SurvivalScene(Scene):
                 self.remove_animal(mole)
 
         for rabbit in self.actors_dict['rabbits']:
-            if rabbit.escaped:
+            if rabbit.escaped or rabbit.killed and rabbit.die():
                 self.remove_animal(rabbit)
-            elif rabbit.killed and rabbit.die():
-                self.fail_sound.play()
-                self.context['player'].loose_life()
+
     def loop(self):
         self.create_animals()
         self.refresh_animals()
@@ -460,6 +463,7 @@ class SurvivalScene(Scene):
         self.actors_dict['holes'] = pygame.sprite.RenderPlain()
         self.actors_dict['moles'] = pygame.sprite.RenderPlain()
         self.actors_dict['rabbits'] = pygame.sprite.RenderPlain()
+        self.animals_index = ('moles', 'rabbits')
         self.actors_dict['blows'] = pygame.sprite.RenderPlain()
         self.generate_holes()
 
