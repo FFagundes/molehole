@@ -457,14 +457,17 @@ class SurvivalScene(Scene):
         if self.context['player'].lives <= 0:
             self.run = False
 
+    def add_animals_dicts(self):
+        for index in self.animals_index:
+            self.actors_dict[index] = pygame.sprite.RenderPlain()
+
     def start(self):
         self.unactive_holes = []
         self.active_holes = []
         self.actors_dict['holes'] = pygame.sprite.RenderPlain()
-        self.actors_dict['moles'] = pygame.sprite.RenderPlain()
-        self.actors_dict['rabbits'] = pygame.sprite.RenderPlain()
-        self.animals_index = ('moles', 'rabbits')
         self.actors_dict['blows'] = pygame.sprite.RenderPlain()
+        self.animals_index = ('moles', 'rabbits')
+        self.add_animals_dicts()
         self.generate_holes()
 
     def end(self):
