@@ -57,7 +57,7 @@ class SpeedMole(Mole):
     points = 2
 
     def __init__(self, position, coordenates,
-                    image_set=['mole_speed.png', 'mole_dead.png']):
+                    image_set=['mole_speed.png', 'mole_speed_dead.png']):
         Mole.__init__(self, position, coordenates, image_set)
 
 
@@ -71,5 +71,5 @@ class CapMole(Mole):
         return super(CapMole, self).loose_life()
 
     def __init__(self, position, coordenates,
-            image_set=['mole_cap.png', 'mole_cap_confused.png', 'mole_dead.png']):
+            image_set=['mole_cap.png', 'mole_cap_confused.png', 'mole_cap_dead.png']):
         Mole.__init__(self, position, coordenates, image_set)
